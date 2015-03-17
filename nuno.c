@@ -1,6 +1,6 @@
 #include <stdio.h>
 
 int main(){
-	printf("O nuno chegou atrasado hoje.\n");
+	printf("o nuno ja chegou!!.\n");
 	return 0;
 }
