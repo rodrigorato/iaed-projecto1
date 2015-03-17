@@ -122,7 +122,9 @@ void loanMoney(bank bankList){
 	scanf(" %d %d %d", &ref1, &ref2, &money);
 	i1=indBankRef(bankList, ref1)
 	i2=indBankRef(bankList, ref2)
+	if (adjacMat[i2][i1]==0){
+		bankList[i1].partners++;
+		bankList[i2].partners++;
+	}
 	adjacMat[i2][i1] += money;
-	bankList[i1].partners++;
-	bankList[i2].partners++;
 }
