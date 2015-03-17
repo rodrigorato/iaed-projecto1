@@ -18,7 +18,7 @@ typedef struct Banco{
 int addBank(bank bankList, int adjacInd, int adjacMat[][MAXBANKS]);
 void killBank(bank bankList);
 void reviveBank(bank bankList);
-void loanMoney();
+void loanMoney(bank bankList);
 void payback();
 void list(bank bankList);
 void killWorst();
@@ -76,7 +76,7 @@ void changeRating(bank list, int referencia, int newRating){
 
 int indBankRef(bank bankList, referencia){
 	int i;
-	for(i=0; list[i].ref != referencia; i++);
+	for(i=0; BankList[i].ref != referencia; i++);
 	return i;
 }
 
@@ -86,6 +86,7 @@ int addBank(bank bankList, int adjacInd, int adjacMat[][MAXBANKS]){
 	/* */
 	int j;
 	bank newBank;
+	newBank.partners=0;
 
 	scanf(" %s %d %hd", newBank.nome, &newBank.ref, &newBank.rating);
 	bankList[adjacInd] = newBank;
@@ -94,6 +95,7 @@ int addBank(bank bankList, int adjacInd, int adjacMat[][MAXBANKS]){
 		adjacMat[adjacInd][j]=0;
 		adjacMat[j][adjacInd]=0;
 	}
+
 
 	return (++adjacInd);
 }
@@ -113,4 +115,14 @@ void reviveBank(bank bankList){
 	int ref;
 	scanf(" %d", &ref);
 	changeRating(bankList, ref, 1);
+}
+
+void loanMoney(bank bankList){
+	int ref1, ref2, money, i1, i2;
+	scanf(" %d %d %d", &ref1, &ref2, &money);
+	i1=indBankRef(bankList, ref1)
+	i2=indBankRef(bankList, ref2)
+	adjacMat[i2][i1] += money;
+	bankList[i1].partners++;
+	bankList[i2].partners++;
 }
