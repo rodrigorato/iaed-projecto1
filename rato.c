@@ -1,7 +1,8 @@
 
 /*** MUDANÇAS ***/
 
-vvoid ammountMoney(bank bankList, int adjacMat[][MAXBANKS], int bankInd, int maxInd, int status);
+void ammountMoney(bank bankList, int adjacMat[][MAXBANKS], int bankInd, int maxInd, int status);
+void histPartners(bank bankList, int maxInd);
 
 
 void list(bank bankList, int adjacMat[][MAXBANKS], int adjacInd){
@@ -16,13 +17,26 @@ void list(bank bankList, int adjacMat[][MAXBANKS], int adjacInd){
 			for(i=0; i < adjacInd; i++)
 				printf("%d %s %d %d %d %d %d %d %d\n",
 						bankList[i].ref, bankList[i].nome, bankList[i].rating,
-						);
+						ammountMoney(bankList, adjacMat, i, adjacInd, 0),
+						ammountMoney(bankList, adjacMat, i, adjacInd, 1),
+						ammountMoney(bankList, adjacMat, i, adjacInd, 2),
+						ammountMoney(bankList, adjacMat, i, adjacInd, 3),
+						ammountMoney(bankList, adjacMat, i, adjacInd, 4),
+						ammountMoney(bankList, adjacMat, i, adjacInd, 5));
 			break;
 		case 2:
-
+			histPartners(bankList, maxInd);
 			break;
 	}
+}
 
+void histPartners(bank bankList, int maxInd){
+	int i, histList[maxInd] = {};
+	for(i=0; i<maxInd; i++)
+		histList[bankList[i].partners]++;
+	for(i=0; i<maxInd; i++)
+		if(histList[i] != 0)
+			printf("%d %d", i, histList[i]);
 }
 
 
@@ -50,7 +64,7 @@ void ammountMoney(bank bankList, int adjacMat[][MAXBANKS], int bankInd, int maxI
 				result += adjacMat[i][bankInd];
 			break;
 		case 3:
-			/* outVM: valor total emprestado pelo banco a bancos 'maus' */
+			/* outVM: usado pelo comando 'K' - valor total emprestado pelo banco a bancos 'maus' */
 			for(i=0; i<maxInd; i++){
 				if(bankList[i].rating == 0)
 					result += adjacMat[i][bankInd];
