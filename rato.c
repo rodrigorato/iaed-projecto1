@@ -145,7 +145,7 @@ int weakestLink(bank bankList[], int adjacMat[][MAXBANKS], int adjacInd){
 	/* -1 se nao houver */
 	int tempDivida = 0, refFinal = -1, i, actDivida = -1;
 	for(i=0; i<adjacInd; i++){
-		actDivida = ammountMoney(bankList, adjacMat, i, adjacInd, 2);
+		actDivida = ammountMoney(bankList, adjacMat, i, adjacInd, 3);
 		if(bankList[i].rating == 1 && actDivida >= tempDivida){
 			tempDivida = actDivida;
 			refFinal = bankList[i].ref;
