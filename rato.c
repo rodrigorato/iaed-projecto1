@@ -217,7 +217,7 @@ void histPartners(bank bankList[], int maxInd){
 		histList[bankList[i].partners]++;
 	for(i=0; i<maxInd; i++)
 		if(histList[i] != 0)
-			printf("%d %d", i, histList[i]);
+			printf("%d %d\n", i, histList[i]);
 }
 
 
