@@ -6,6 +6,7 @@
 #define MAXBANKS 1000 /* 10^3 */
 
 
+/* ESTRUTURAS */
 typedef struct Banco{
 	char nome[MAXNAME];
 	int ref;
@@ -13,16 +14,19 @@ typedef struct Banco{
 	int partners;
 }bank;
 
-
-
-int addBank();
-void killBank();
+/* PROTOTIPOS */
+int addBank(bank bankList, int adjacInd, int adjacMat[][MAXBANKS]);
+void killBank(bank bankList);
 void reviveBank();
 void loanMoney();
 void payback();
 void list();
 void killWorst();
 void ending();
+void kill(bank list, int referencia);
+int weakestLink(bank bankList);
+
+
 
 
 
@@ -35,10 +39,10 @@ int main(){
 	while((c = getchar()) != 'x'){
 		switch(c){
 			case 'a':
-				addBank(bankList, adjacInd, adjacMat);
+				adjacInd = addBank(bankList, adjacInd, adjacMat);
 				break;
 			case 'k':
-				killBank();
+				killBank(bankList);
 				break;
 			case 'r':
 				reviveBank();
@@ -54,7 +58,7 @@ int main(){
 				break;
 			case 'K':
 				getchar();
-				killWorst();
+				killWorst(bankList);
 				break;
 				//kill(weakest_link());
 		}
@@ -63,7 +67,18 @@ int main(){
 	
 	return 0;
 }
+
+void kill(bank list, int referencia){
+	/* */
+	int i;
+	for (i=0; list[i].ref != referencia; i++);
+	list[i].rating = 0;
+}
+
+
+
 int addBank(bank bankList, int adjacInd, int adjacMat[][MAXBANKS]){
+	/* */
 	int j;
 	bank newBank;
 
@@ -77,3 +92,12 @@ int addBank(bank bankList, int adjacInd, int adjacMat[][MAXBANKS]){
 
 	return (++adjacInd);
 }
+
+void killBank(bank bankList){
+	scanf(" %d",ref);
+	kill(bankList, ref);
+}
+/*
+void killWorst(bank bankList){
+	kill(bankList, weakest_link(bankList));
+}*/
