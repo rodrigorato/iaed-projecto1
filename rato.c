@@ -26,6 +26,7 @@ void ending();
 
 void changeRating(bank list, int referencia, int newRating);
 int weakestLink(bank bankList);
+int indBankRef(bank bankList, referencia);
 
 
 
@@ -70,8 +71,13 @@ int main(){
 void changeRating(bank list, int referencia, int newRating){
 	/* */
 	int i;
-	for (i=0; list[i].ref != referencia; i++);
-	list[i].rating = newRating;
+	list[indBankRef(bankList, referencia)].rating = newRating;
+}
+
+int indBankRef(bank bankList, referencia){
+	int i;
+	for(i=0; list[i].ref != referencia; i++);
+	return i;
 }
 
 
