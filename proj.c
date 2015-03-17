@@ -8,14 +8,14 @@
 
 typedef struct Banco{
 	char nome[MAXNAME];
-	unsigned int ref;
+	int ref;
 	short int rating;/*1-bom, 0-mau, qualquer outro valor-invalido*/
-	unsigned int partners;
+	int partners;
 }bank;
 
 
 
-void addBank();
+int addBank();
 void killBank();
 void reviveBank();
 void loanMoney();
@@ -24,19 +24,18 @@ void list();
 void killWorst();
 void ending();
 
-void initMatrix(unsigned int matriz[][MAXBANKS]);
 
 
 
-int main(){
-	bank banklist[MAXBANKS];
-	unsigned int adjac[MAXBANKS][MAXBANKS];
-	initMatrix(adjac);
+
+int main(){	
+	int adjacMat[MAXBANKS][MAXBANKS], adjacInd=0;
+	bank bankList[MAXBANKS];
 	char c;
 	while((c = getchar()) != 'x'){
 		switch(c){
 			case 'a':
-				addBank();
+				addBank(bankList, adjacInd, adjacMat);
 				break;
 			case 'k':
 				killBank();
@@ -63,4 +62,18 @@ int main(){
 	ending();
 	
 	return 0;
+}
+int addBank(bank bankList, int adjacInd, int adjacMat[][MAXBANKS]){
+	int j;
+	bank newBank;
+
+	scanf(" %s %d %hd", newBank.nome, &newBank.ref, &newBank.rating);
+	bankList[adjacInd] = newBank;
+
+	for(j=0;j<=adjacInd;j++){
+		adjacMat[adjacInd][j]=0;
+		adjacMat[j][adjacInd]=0;
+	}
+
+	return (adjacInd++);
 }
