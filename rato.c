@@ -32,13 +32,14 @@ int ammountMoney(bank bankList[], int adjacMat[][MAXBANKS], int bankInd, int max
 void histPartners(bank bankList[], int maxInd);
 void putValues(bank bankList[], int adjacMat[][MAXBANKS], int indBanco, int adjacInd);
 
-
+void initBankList(bank bankList[]);
 
 
 
 int main(){	
 	int adjacMat[MAXBANKS][MAXBANKS], adjacInd=0;
 	bank bankList[MAXBANKS];
+	initBankList(bankList);
 	char c;
 	while((c = getchar()) != 'x'){
 		switch(c){
@@ -70,6 +71,14 @@ int main(){
 	return 0;
 }
 
+void initBankList(bank bankList[]){
+	int i;
+	bank invalidBank;
+	invalidBank.ref = -1;
+	for(i=0; i<MAXBANKS; i++)
+		bankList[i] = invalidBank;
+}
+
 void changeRating(bank bankList[], int referencia, int newRating){
 	/* */
 	bankList[indBankRef(bankList, referencia)].rating = newRating;
@@ -77,8 +86,10 @@ void changeRating(bank bankList[], int referencia, int newRating){
 
 int indBankRef(bank bankList[], int referencia){
 	int i;
-	for(i=0; bankList[i].ref != referencia; i++);
-	return i;
+	for(i=0; i < MAXBANKS; i++)
+		if(bankList[i].ref == referencia)
+			return i;
+	return -1;
 }
 
 void transactions(bank bankList[], int way, int adjacMat[][MAXBANKS]){/*way=0 -> loan, way=1 ->payback*/
@@ -175,9 +186,9 @@ void putValues(bank bankList[], int adjacMat[][MAXBANKS], int indBanco, int adja
 
 
 void list(bank bankList[], int adjacMat[][MAXBANKS], int adjacInd){
-	int i;
-	char c = getchar();
-	switch(c){
+	int i, status;
+	scanf("%d", &status);
+	switch(status){
 		case 0:
 			for(i=0; i < adjacInd; i++)
 				printf("%i %s %i\n", bankList[i].ref, bankList[i].nome, bankList[i].rating);
