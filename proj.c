@@ -60,7 +60,7 @@ int main(){
 				list(bankList);
 				break;
 			case 'K':
-				getchar();
+				/*getchar();*/
 				killWorst(bankList);
 				break;
 				//kill(weakest_link());
