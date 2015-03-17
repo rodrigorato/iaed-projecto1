@@ -67,11 +67,11 @@ int main(){
 	return 0;
 }
 
-void kill(bank list, int referencia){
+void changeRating(bank list, int referencia, int newRating){
 	/* */
 	int i;
 	for (i=0; list[i].ref != referencia; i++);
-	list[i].rating = 0;
+	list[i].rating = newRating;
 }
 
 
