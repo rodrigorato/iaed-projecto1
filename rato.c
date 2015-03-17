@@ -80,15 +80,18 @@ void initBankList(bank bankList[]){
 }
 
 void changeRating(bank bankList[], int referencia, int newRating){
-	/* */
+	/* TIRAR */
+	printf("ref = %d\n", indBankRef(bankList, referencia));
 	bankList[indBankRef(bankList, referencia)].rating = newRating;
 }
 
 int indBankRef(bank bankList[], int referencia){
 	int i;
-	for(i=0; i < MAXBANKS; i++)
+	for(i=0; i < MAXBANKS; i++){
+		printf("i=%d ref=%d rat=%d\n", i, bankList[i].ref, bankList[i].rating);
 		if(bankList[i].ref == referencia)
 			return i;
+	}
 	return -1;
 }
 
@@ -120,7 +123,9 @@ int addBank(bank bankList[], int adjacInd, int adjacMat[][MAXBANKS]){
 	bank newBank;
 	newBank.partners=0;
 
-	scanf(" %s %d %hd", newBank.nome, &newBank.ref, &newBank.rating);
+	/*scanf(" %s %d %hd", newBank.nome, &newBank.ref, &newBank.rating);*/
+	scanf(" %s", newBank.nome);
+	scanf(" %hd %d", &newBank.rating, &newBank.ref);
 	bankList[adjacInd] = newBank;
 
 	for(j=0;j<=adjacInd;j++){
