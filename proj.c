@@ -18,18 +18,19 @@ typedef struct Banco{
 int addBank(bank bankList[], int adjacInd, int adjacMat[][MAXBANKS]);
 void killBank(bank bankList[]);
 void reviveBank(bank bankList[]);
-void loanMoney(bank bankList[]);
-void payback(bank bankList[]);
+void loanMoney(bank bankList[], int adjacMat[][MAXBANKS]);
+void payback(bank bankList[], int adjacMat[][MAXBANKS]);
 void list(bank bankList[], int adjacMat[][MAXBANKS], int adjacInd);
 void killWorst(bank bankList[], int adjacMat[][MAXBANKS], int adjacInd);
 void goodStats(bank bankList[], int adjacInd);
 
 void changeRating(bank list[], int referencia, int newRating);
 int weakestLink(bank bankList[], int adjacMat[][MAXBANKS], int adjacInd);
-int indBankRef(bank bankList[], referencia);
-void transactions(bank bankList[], int way);
-void ammountMoney(bank bankList[], int adjacMat[][MAXBANKS], int bankInd, int maxInd, int status);
+int indBankRef(bank bankList[], int referencia);
+void transactions(bank bankList[], int way, int adjacMat[][MAXBANKS]);
+int ammountMoney(bank bankList[], int adjacMat[][MAXBANKS], int bankInd, int maxInd, int status);
 void histPartners(bank bankList[], int maxInd);
+void putValues(bank bankList[], int adjacMat[][MAXBANKS], int indBanco, int adjacInd);
 
 
 
@@ -51,39 +52,37 @@ int main(){
 				reviveBank(bankList);
 				break;
 			case 'e':
-				loanMoney(bankList);
+				loanMoney(bankList, adjacMat);
 				break;
 			case 'p':
-				payback(bankList);
+				payback(bankList, adjacMat);
 				break;
 			case 'l':
-				list(bankList);
+				list(bankList, adjacMat, adjacInd);
 				break;
 			case 'K':
 				/*getchar();*/
-				killWorst(bankList);
+				killWorst(bankList, adjacMat, adjacInd);
 				break;
-				//kill(weakest_link());
 		}
 	}
 	goodStats(bankList, adjacInd);	
 	return 0;
 }
 
-void changeRating(bank list[], int referencia, int newRating){
+void changeRating(bank bankList[], int referencia, int newRating){
 	/* */
-	int i;
-	list[indBankRef(bankList, referencia)].rating = newRating;
+	bankList[indBankRef(bankList, referencia)].rating = newRating;
 }
 
-int indBankRef(bank bankList[], referencia){
+int indBankRef(bank bankList[], int referencia){
 	int i;
 	for(i=0; bankList[i].ref != referencia; i++);
 	return i;
 }
 
-void transactions(bank bankList[], int way){/*way=0 -> loan, way=1 ->payback*/
-	int ref1,ref2, money;
+void transactions(bank bankList[], int way, int adjacMat[][MAXBANKS]){/*way=0 -> loan, way=1 ->payback*/
+	int i1, i2, ref1,ref2, money;
 	scanf(" %d %d %d", &ref1, &ref2, &money);
 	i1=indBankRef(bankList, ref1);
 	i2=indBankRef(bankList, ref2);
@@ -143,7 +142,7 @@ int weakestLink(bank bankList[], int adjacMat[][MAXBANKS], int adjacInd){
 
 void killWorst(bank bankList[], int adjacMat[][MAXBANKS], int adjacInd){
 	int refWeakest, bankWorstInd;
-	refWeakest = weakestLink(bankList, adjacMat);
+	refWeakest = weakestLink(bankList, adjacMat, adjacInd);
 	if(refWeakest != -1){
 		changeRating(bankList, refWeakest, 0);
 		bankWorstInd = indBankRef(bankList, refWeakest);
@@ -160,12 +159,12 @@ void reviveBank(bank bankList[]){
 	changeRating(bankList, ref, 1);
 }
 
-void loanMoney(bank bankList[]){
-	transactions(bankList,0);
+void loanMoney(bank bankList[], int adjacMat[][MAXBANKS]){
+	transactions(bankList,0, adjacMat);
 }
 
-void payback(bank bankList[]){
-	transactions(bankList,1);
+void payback(bank bankList[], int adjacMat[][MAXBANKS]){
+	transactions(bankList,1, adjacMat);
 }
 
 void putValues(bank bankList[], int adjacMat[][MAXBANKS], int indBanco, int adjacInd){
@@ -175,7 +174,7 @@ void putValues(bank bankList[], int adjacMat[][MAXBANKS], int indBanco, int adja
 }
 
 
-void list(bank bankList, int adjacMat[][MAXBANKS], int adjacInd){
+void list(bank bankList[], int adjacMat[][MAXBANKS], int adjacInd){
 	int i;
 	char c = getchar();
 	switch(c){
@@ -191,13 +190,15 @@ void list(bank bankList, int adjacMat[][MAXBANKS], int adjacInd){
 			}
 			break;
 		case 2:
-			histPartners(bankList, maxInd);
+			histPartners(bankList, adjacInd);
 			break;
 	}
 }
 
 void histPartners(bank bankList[], int maxInd){
-	int i, histList[maxInd] = {};
+	int i, histList[MAXBANKS];
+	for(i=0; i<maxInd; i++)
+		histList[i] = 0;
 	for(i=0; i<maxInd; i++)
 		histList[bankList[i].partners]++;
 	for(i=0; i<maxInd; i++)
@@ -207,7 +208,7 @@ void histPartners(bank bankList[], int maxInd){
 
 
 
-void ammountMoney(bank bankList[], int adjacMat[][MAXBANKS], int bankInd, int maxInd, int status){
+int ammountMoney(bank bankList[], int adjacMat[][MAXBANKS], int bankInd, int maxInd, int status){
 	int result = 0, i = 0;
 	switch(status){
 		case 0:
