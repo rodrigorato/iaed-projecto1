@@ -15,21 +15,21 @@ typedef struct Banco{
 }bank;
 
 /* PROTOTIPOS */
-int addBank(bank bankList, int adjacInd, int adjacMat[][MAXBANKS]);
-void killBank(bank bankList);
-void reviveBank(bank bankList);
-void loanMoney(bank bankList);
-void payback(bank bankList);
-void list(bank bankList, int adjacMat[][MAXBANKS], int adjacInd);
-void killWorst();
-void ending(bank bankList, int adjacInd);
+int addBank(bank bankList[], int adjacInd, int adjacMat[][MAXBANKS]);
+void killBank(bank bankList[]);
+void reviveBank(bank bankList[]);
+void loanMoney(bank bankList[]);
+void payback(bank bankList[]);
+void list(bank bankList[], int adjacMat[][MAXBANKS], int adjacInd);
+void killWorst(bank bankList[], int adjacMat[][MAXBANKS], int adjacInd);
+void goodStats(bank bankList[], int adjacInd);
 
-void changeRating(bank list, int referencia, int newRating);
-int weakestLink(bank bankList);
-int indBankRef(bank bankList, referencia);
-void transactions(bank bankList, way);
-void ammountMoney(bank bankList, int adjacMat[][MAXBANKS], int bankInd, int maxInd, int status);
-void histPartners(bank bankList, int maxInd);
+void changeRating(bank list[], int referencia, int newRating);
+int weakestLink(bank bankList[], int adjacMat[][MAXBANKS], int adjacInd);
+int indBankRef(bank bankList[], referencia);
+void transactions(bank bankList[], int way);
+void ammountMoney(bank bankList[], int adjacMat[][MAXBANKS], int bankInd, int maxInd, int status);
+void histPartners(bank bankList[], int maxInd);
 
 
 
@@ -66,23 +66,23 @@ int main(){
 				//kill(weakest_link());
 		}
 	}
-	ending(bankList, adjacInd);	
+	goodStats(bankList, adjacInd);	
 	return 0;
 }
 
-void changeRating(bank list, int referencia, int newRating){
+void changeRating(bank list[], int referencia, int newRating){
 	/* */
 	int i;
 	list[indBankRef(bankList, referencia)].rating = newRating;
 }
 
-int indBankRef(bank bankList, referencia){
+int indBankRef(bank bankList[], referencia){
 	int i;
 	for(i=0; bankList[i].ref != referencia; i++);
 	return i;
 }
 
-void transactions(bank bankList, way){/*way=0 -> loan, way=1 ->payback*/
+void transactions(bank bankList[], int way){/*way=0 -> loan, way=1 ->payback*/
 	int ref1,ref2, money;
 	scanf(" %d %d %d", &ref1, &ref2, &money);
 	i1=indBankRef(bankList, ref1);
@@ -104,7 +104,7 @@ void transactions(bank bankList, way){/*way=0 -> loan, way=1 ->payback*/
 }
 
 
-int addBank(bank bankList, int adjacInd, int adjacMat[][MAXBANKS]){
+int addBank(bank bankList[], int adjacInd, int adjacMat[][MAXBANKS]){
 	/* */
 	int j;
 	bank newBank;
@@ -122,29 +122,56 @@ int addBank(bank bankList, int adjacInd, int adjacMat[][MAXBANKS]){
 	return (++adjacInd);
 }
 
-void killBank(bank bankList){
+void killBank(bank bankList[]){
 	int ref;
 	scanf(" %d", &ref);
 	changeRating(bankList, ref, 0);
 }
 
-/*
-void killWorst(bank bankList){
-	cenas
-}*/
+int weakestLink(bank bankList[], int adjacMat[][MAXBANKS], int adjacInd){
+	/* -1 se nao houver */
+	int tempDivida = 0, refFinal = -1, i, actDivida = -1;
+	for(i=0; i<adjacInd; i++){
+		actDivida = ammountMoney(bankList, adjacMat, i, adjacInd, 2);
+		if(bankList[i].rating == 1 && actDivida >= tempDivida){
+			tempDivida = actDivida;
+			refFinal = bankList[i].ref;
+		}
+	}
+	return refFinal;
+}
 
-void reviveBank(bank bankList){
+void killWorst(bank bankList[], int adjacMat[][MAXBANKS], int adjacInd){
+	int refWeakest, bankWorstInd;
+	refWeakest = weakestLink(bankList, adjacMat);
+	if(refWeakest != -1){
+		changeRating(bankList, refWeakest, 0);
+		bankWorstInd = indBankRef(bankList, refWeakest);
+		printf("*%d %s %d ", bankList[bankWorstInd].ref, bankList[bankWorstInd].nome, bankList[bankWorstInd].rating);
+		putValues(bankList, adjacMat, bankWorstInd, adjacInd);
+		printf("\n");
+	}
+	goodStats(bankList, adjacInd);
+}
+
+void reviveBank(bank bankList[]){
 	int ref;
 	scanf(" %d", &ref);
 	changeRating(bankList, ref, 1);
 }
 
-void loanMoney(bank bankList){
+void loanMoney(bank bankList[]){
 	transactions(bankList,0);
 }
 
-void payback(bank bankList){
+void payback(bank bankList[]){
 	transactions(bankList,1);
+}
+
+void putValues(bank bankList[], int adjacMat[][MAXBANKS], int indBanco, int adjacInd){
+	int i;
+	for(i=0; i<6; i++)
+		printf("%d ", ammountMoney(bankList, adjacMat, indBanco, adjacInd, i));
 }
 
 
@@ -157,15 +184,11 @@ void list(bank bankList, int adjacMat[][MAXBANKS], int adjacInd){
 				printf("%i %s %i\n", bankList[i].ref, bankList[i].nome, bankList[i].rating);
 			break;
 		case 1:
-			for(i=0; i < adjacInd; i++)
-				printf("%d %s %d %d %d %d %d %d %d\n",
-						bankList[i].ref, bankList[i].nome, bankList[i].rating,
-						ammountMoney(bankList, adjacMat, i, adjacInd, 0),
-						ammountMoney(bankList, adjacMat, i, adjacInd, 1),
-						ammountMoney(bankList, adjacMat, i, adjacInd, 2),
-						ammountMoney(bankList, adjacMat, i, adjacInd, 3),
-						ammountMoney(bankList, adjacMat, i, adjacInd, 4),
-						ammountMoney(bankList, adjacMat, i, adjacInd, 5));
+			for(i=0; i < adjacInd; i++){
+				printf("%d %s %d ", bankList[i].ref, bankList[i].nome, bankList[i].rating);
+				putValues(bankList, adjacMat, i, adjacInd);
+				printf("\n");
+			}
 			break;
 		case 2:
 			histPartners(bankList, maxInd);
@@ -173,7 +196,7 @@ void list(bank bankList, int adjacMat[][MAXBANKS], int adjacInd){
 	}
 }
 
-void histPartners(bank bankList, int maxInd){
+void histPartners(bank bankList[], int maxInd){
 	int i, histList[maxInd] = {};
 	for(i=0; i<maxInd; i++)
 		histList[bankList[i].partners]++;
@@ -184,7 +207,7 @@ void histPartners(bank bankList, int maxInd){
 
 
 
-void ammountMoney(bank bankList, int adjacMat[][MAXBANKS], int bankInd, int maxInd, int status){
+void ammountMoney(bank bankList[], int adjacMat[][MAXBANKS], int bankInd, int maxInd, int status){
 	int result = 0, i = 0;
 	switch(status){
 		case 0:
@@ -232,10 +255,10 @@ void ammountMoney(bank bankList, int adjacMat[][MAXBANKS], int bankInd, int maxI
 
 
 
-void ending(bank bankList, int adjacInd){
+void goodStats(bank bankList[], int adjacInd){
 	int i, bons=0;
 	for (i=0;i<adjacInd;i++)
 		if (bankList[i].rating==1)
 			bons++;
-	printf("%d %d", adjacInd, bons);
+	printf("%d %d\n", adjacInd, bons);
 }
