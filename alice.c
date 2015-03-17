@@ -6,6 +6,7 @@
 #define MAXBANKS 1000 /* 10^3 */
 
 
+/* ESTRUTURAS */
 typedef struct Banco{
 	char nome[MAXNAME];
 	int ref;
@@ -13,16 +14,19 @@ typedef struct Banco{
 	int partners;
 }bank;
 
-
-
-int addBank();
-void killBank();
-void reviveBank();
-void loanMoney();
+/* PROTOTIPOS */
+int addBank(bank bankList, int adjacInd, int adjacMat[][MAXBANKS]);
+void killBank(bank bankList);
+void reviveBank(bank bankList);
+void loanMoney(bank bankList);
 void payback();
 void list();
 void killWorst();
 void ending();
+
+void changeRating(bank list, int referencia, int newRating);
+int weakestLink(bank bankList);
+int indBankRef(bank bankList, referencia);
 
 
 
@@ -35,10 +39,10 @@ int main(){
 	while((c = getchar()) != 'x'){
 		switch(c){
 			case 'a':
-				addBank(bankList, adjacInd, adjacMat);
+				adjacInd = addBank(bankList, adjacInd, adjacMat);
 				break;
 			case 'k':
-				killBank();
+				killBank(bankList);
 				break;
 			case 'r':
 				reviveBank();
@@ -54,7 +58,7 @@ int main(){
 				break;
 			case 'K':
 				getchar();
-				killWorst();
+				killWorst(bankList);
 				break;
 				//kill(weakest_link());
 		}
@@ -63,7 +67,23 @@ int main(){
 	
 	return 0;
 }
+
+void changeRating(bank list, int referencia, int newRating){
+	/* */
+	int i;
+	list[indBankRef(bankList, referencia)].rating = newRating;
+}
+
+int indBankRef(bank bankList, referencia){
+	int i;
+	for(i=0; list[i].ref != referencia; i++);
+	return i;
+}
+
+
+
 int addBank(bank bankList, int adjacInd, int adjacMat[][MAXBANKS]){
+	/* */
 	int j;
 	bank newBank;
 
@@ -76,4 +96,28 @@ int addBank(bank bankList, int adjacInd, int adjacMat[][MAXBANKS]){
 	}
 
 	return (++adjacInd);
+}
+
+void killBank(bank bankList){
+	int ref;
+	scanf(" %d", &ref);
+	changeRating(bankList, ref, 0);
+}
+
+/*
+void killWorst(bank bankList){
+	cenas
+}*/
+
+void reviveBank(bank bankList){
+	int ref;
+	scanf(" %d", &ref);
+	changeRating(bankList, ref, 1);
+}
+
+void loanMoney(bank bankList){
+	int ref1, ref2, money;
+	scanf(" %d %d %d", &ref1, &ref2, &money);
+	adjacMat[indBankRef(bankList, ref2)][indBankRef(bankList, ref1)] += money;
+
 }

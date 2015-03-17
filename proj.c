@@ -120,8 +120,8 @@ void reviveBank(bank bankList){
 void loanMoney(bank bankList){
 	int ref1, ref2, money, i1, i2;
 	scanf(" %d %d %d", &ref1, &ref2, &money);
-	i1=indBankRef(bankList, ref1)
-	i2=indBankRef(bankList, ref2)
+	i1=indBankRef(bankList, ref1);
+	i2=indBankRef(bankList, ref2);
 	if (adjacMat[i2][i1]==0 && adjacMat[i1][i2]==0 ){
 		bankList[i1].partners++;
 		bankList[i2].partners++;
