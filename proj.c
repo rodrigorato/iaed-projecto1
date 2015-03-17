@@ -75,5 +75,5 @@ int addBank(bank bankList, int adjacInd, int adjacMat[][MAXBANKS]){
 		adjacMat[j][adjacInd]=0;
 	}
 
-	return (adjacInd++);
+	return (++adjacInd);
 }
