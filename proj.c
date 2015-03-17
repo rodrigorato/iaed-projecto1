@@ -20,7 +20,7 @@ void killBank(bank bankList);
 void reviveBank(bank bankList);
 void loanMoney();
 void payback();
-void list();
+void list(bank bankList);
 void killWorst();
 void ending();
 
@@ -54,7 +54,7 @@ int main(){
 				payback();
 				break;
 			case 'l':
-				list();
+				list(bankList);
 				break;
 			case 'K':
 				getchar();
