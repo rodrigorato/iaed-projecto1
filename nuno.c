@@ -1,6 +1,6 @@
 #include <stdio.h>
 
 int main(){
-	printf("O nuno chegou atrasado hoje.\n");
+	printf("o nuno ja chegou e ja deu commit 1 vez.\n");
 	return 0;
 }
