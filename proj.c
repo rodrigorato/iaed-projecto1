@@ -19,7 +19,7 @@ int addBank(bank bankList, int adjacInd, int adjacMat[][MAXBANKS]);
 void killBank(bank bankList);
 void reviveBank(bank bankList);
 void loanMoney(bank bankList);
-void payback();
+void payback(bank bankList);
 void list(bank bankList);
 void killWorst();
 void ending();
@@ -27,6 +27,7 @@ void ending();
 void changeRating(bank list, int referencia, int newRating);
 int weakestLink(bank bankList);
 int indBankRef(bank bankList, referencia);
+void transactions(bank bankList, way);
 
 
 
@@ -80,6 +81,26 @@ int indBankRef(bank bankList, referencia){
 	return i;
 }
 
+void transactions(bank bankList, way){/*way=0 -> loan, way=1 ->payback*/
+	int ref1,ref2, money;
+	scanf(" %d %d %d", &ref1, &ref2, &money);
+	i1=indBankRef(bankList, ref1);
+	i2=indBankRef(bankList, ref2);
+	if 	(way==0){
+		if (adjacMat[i2][i1]==0 && adjacMat[i1][i2]==0 ){
+			bankList[i1].partners++;
+			bankList[i2].partners++;
+		}
+		adjacMat[i2][i1] += money;		
+	}
+	else{
+		adjacMat[i1][i2]-=money;
+		if (adjacMat[i2][i1]==0 && adjacMat[i1][i2]==0 ){
+			bankList[i1].partners--;
+			bankList[i2].partners--;
+		}	
+	}
+}
 
 
 int addBank(bank bankList, int adjacInd, int adjacMat[][MAXBANKS]){
@@ -118,13 +139,9 @@ void reviveBank(bank bankList){
 }
 
 void loanMoney(bank bankList){
-	int ref1, ref2, money, i1, i2;
-	scanf(" %d %d %d", &ref1, &ref2, &money);
-	i1=indBankRef(bankList, ref1);
-	i2=indBankRef(bankList, ref2);
-	if (adjacMat[i2][i1]==0 && adjacMat[i1][i2]==0 ){
-		bankList[i1].partners++;
-		bankList[i2].partners++;
-	}
-	adjacMat[i2][i1] += money;
+	transactions(bankList,0);
+}
+
+void payback(bank bankList){
+	transactions(bankList,1);
 }
