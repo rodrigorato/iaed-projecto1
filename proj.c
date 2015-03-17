@@ -17,7 +17,7 @@ typedef struct Banco{
 /* PROTOTIPOS */
 int addBank(bank bankList, int adjacInd, int adjacMat[][MAXBANKS]);
 void killBank(bank bankList);
-void reviveBank();
+void reviveBank(bank bankList);
 void loanMoney();
 void payback();
 void list();
@@ -94,10 +94,16 @@ int addBank(bank bankList, int adjacInd, int adjacMat[][MAXBANKS]){
 }
 
 void killBank(bank bankList){
-	scanf(" %d",ref);
+	int ref;
+	scanf(" %d", &ref);
 	kill(bankList, ref);
 }
+
 /*
 void killWorst(bank bankList){
 	kill(bankList, weakest_link(bankList));
 }*/
+
+void reviveBank(bank bankList){
+
+}
