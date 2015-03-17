@@ -20,9 +20,9 @@ void killBank(bank bankList);
 void reviveBank(bank bankList);
 void loanMoney(bank bankList);
 void payback(bank bankList);
-void list(bank bankList);
+void list(bank bankList, int adjacMat[][MAXBANKS], int adjacInd);
 void killWorst();
-void ending();
+void ending(bank bankList, int adjacInd);
 
 void changeRating(bank list, int referencia, int newRating);
 int weakestLink(bank bankList);
@@ -46,13 +46,13 @@ int main(){
 				killBank(bankList);
 				break;
 			case 'r':
-				reviveBank();
+				reviveBank(bankList);
 				break;
 			case 'e':
-				loanMoney();
+				loanMoney(bankList);
 				break;
 			case 'p':
-				payback();
+				payback(bankList);
 				break;
 			case 'l':
 				list(bankList);
@@ -64,8 +64,7 @@ int main(){
 				//kill(weakest_link());
 		}
 	}
-	ending();
-	
+	ending(bankList, adjacInd);	
 	return 0;
 }
 
@@ -77,7 +76,7 @@ void changeRating(bank list, int referencia, int newRating){
 
 int indBankRef(bank bankList, referencia){
 	int i;
-	for(i=0; BankList[i].ref != referencia; i++);
+	for(i=0; bankList[i].ref != referencia; i++);
 	return i;
 }
 
@@ -144,4 +143,14 @@ void loanMoney(bank bankList){
 
 void payback(bank bankList){
 	transactions(bankList,1);
+}
+/*********************/
+
+
+void ending(bank bankList, int adjacInd){
+	int i, bons=0;
+	for (i=0;i<adjacInd;i++)
+		if (bankList[i].rating==1)
+			bons++;
+	printf("%d %d", adjacInd, bons);
 }
