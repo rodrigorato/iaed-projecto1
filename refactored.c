@@ -8,6 +8,8 @@
 #define MAU 0 /* Para classificar bancos ditos maus */
 #define EMPRESTA 0 /* Legibilidade de transferencias - comando 'e' */
 #define DEVOLVE 1 /* Legibilidade de transferencias - comando 'p' */
+#define OUTVM 0 /* calcValues - legibilidade */
+#define printTODOS 1 /* calcValues - legibilidade */
 #define apanhaNEWLINE getchar() /* Para apanhar '\n's do utilizador de forma legivel */
 
 
@@ -35,7 +37,6 @@ void killWorst();
 
 int indBankRef(int ref);
 void transfereDinheiro(int ref1, int ref2, int valor, int modo);
-void putValues(int indiceBanco);
 int calcValues(int indiceBanco, int op);
 void histogramaParceiros();
 void lastStats();
@@ -171,7 +172,7 @@ void listData(int tipo){
 		case 1:
 			for(i = 0; i < bankInd; i++){
 				printf("%d %s %d ", bankList[i].ref, bankList[i].nome, bankList[i].rating);
-				putValues(i); /* Escreve estatisticas de dado banco */
+				calcValues(i, printTODOS); /* Escreve estatisticas de dado banco */
 				printf("\n");
 			}
 			break;
@@ -189,7 +190,7 @@ void killWorst(){
 		killBank(refWeakest);
 		bankWorstInd = indBankRef(refWeakest);
 		printf("*%d %s %d ", refWeakest, bankList[bankWorstInd].nome, bankList[bankWorstInd].rating);
-		putValues(bankWorstInd);
+		calcValues(bankWorstInd, printTODOS);
 		printf("\n");
 	}
 	lastStats();
@@ -236,60 +237,42 @@ void transfereDinheiro(int ref1, int ref2, int valor, int modo){
 	 }
 }
 
-void putValues(int indiceBanco){
-	/* Escreve as estatisticas de dado banco *
-	 * para mais detalhes ver calcValues();  */
-
-	int op;
-	for(op = 0; op < 5; op++)
-		printf("%d ", calcValues(indiceBanco, op));
-	printf("%d", calcValues(indiceBanco, op)); /* para nao imprimir um ultimo espaco */
-}
-
 int calcValues(int indiceBanco, int op){
 	/* Calcula estatisticas de dado banco, explicado em comentarios posteriores */
-	int result = 0, i;
+	int i, inP = 0, outP = 0, outV = 0, outVM = 0, inV = 0, inVM = 0;
 	switch(op){
-		case 0:
-			/* inP: numero total de bancos parceiros a quem o banco tem divida */
+		case OUTVM:
+			/* OUTVM: usado pelo comando 'K' - valor total emprestado pelo banco a bancos 'maus' */
 			for(i=0; i<bankInd; i++){
+				if(bankList[i].rating == MAU)
+					outVM += bankMat[i][indiceBanco];
+			}
+			break;
+
+		case printTODOS:
+			/* printTODOS - calculando ao mesmo tempo para diminuir complexidade */
+			for(i = 0; i < bankInd; i++){
 				if(bankMat[indiceBanco][i] != 0)
-					result++;
-			}
-			break;
-		case 1:
-			/* outP: numero total de bancos parceiros a quem o banco tem dinheiro emprestado */
-			for(i=0; i<bankInd; i++){
+					inP++;
+				
 				if(bankMat[i][indiceBanco] != 0)
-					result++;
-			}
-			break;
-		case 2:
-			/* outV: valor total emprestado pelo banco a outros */
-			for(i=0; i<bankInd; i++)
-				result += bankMat[i][indiceBanco];
-			break;
-		case 3:
-			/* outVM: usado pelo comando 'K' - valor total emprestado pelo banco a bancos 'maus' */
-			for(i=0; i<bankInd; i++){
+					outP++;
+				
+				outV += bankMat[i][indiceBanco];
+
 				if(bankList[i].rating == MAU)
-					result += bankMat[i][indiceBanco];
-			}
-			break;
-		case 4:
-			/* inV: valor total emprestado ao banco por outros bancos */
-			for(i=0; i<bankInd; i++)
-				result += bankMat[indiceBanco][i];
-			break;
-		case 5:
-			/* inVM: valor total emprestado ao banco por bancos maus */
-			for(i=0; i<bankInd; i++)
+					outVM += bankMat[i][indiceBanco];
+
+				inV += bankMat[indiceBanco][i];
+
 				if(bankList[i].rating == MAU)
-					result += bankMat[indiceBanco][i];
+					inVM += bankMat[indiceBanco][i];
+			}
+
+			printf("%d %d %d %d %d %d", inP, outP, outV, outVM, inV, inVM);
 			break;
 	}
-
-	return result;
+	return outVM;
 }
 
 void histogramaParceiros(){
@@ -320,7 +303,7 @@ int weakestLink(){
 
 	int tempDivida = 0, refFinal = -1, actDivida = -1, i;
 	for(i = 0; i < bankInd; i++){
-		actDivida = calcValues(i, 3);
+		actDivida = calcValues(i, OUTVM);
 		if(bankList[i].rating == BOM && actDivida >= tempDivida && actDivida != 0){
 			tempDivida = actDivida;
 			refFinal = bankList[i].ref;
@@ -328,7 +311,3 @@ int weakestLink(){
 	}
 	return refFinal;
 }
-
-
-
-
