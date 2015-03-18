@@ -6,6 +6,8 @@
 #define MAXBANKS 1000 /* Definido pelo enunciado - maximo de bancos = 10^3 */
 #define BOM 1 /* Para classificar bancos ditos bons */
 #define MAU 0 /* Para classificar bancos ditos maus */
+#define EMPRESTA 0 /* Legibilidade de transferencias - comando 'e' */
+#define DEVOLVE 1 /* Legibilidade de transferencias - comando 'p' */
 #define apanhaNEWLINE getchar() /* Para apanhar '\n's do utilizador de forma legivel */
 
 
@@ -26,8 +28,11 @@ bank bankList[MAXBANKS];
 void addBank(char nome[], int rating, int ref);
 void killBank(int ref);
 void reviveBank(int ref);
+void emprestaDinheiro(int ref1, int ref2, int valor);
+void paybackDinheiro(int ref1, int ref2, int valor);
 
 int indBankRef(int ref);
+void transfereDinheiro(int ref1, int ref2, int valor, int modo);
 
 
 
@@ -65,13 +70,13 @@ int main(){
 			case 'e':
 				scanf(" %d %d %d", &ref1, &ref2, &valor);
 				apanhaNEWLINE;
-				printf("e:\nRef1: %d\nRef2: %d\nValor: %d\n", ref1, ref2, valor);
+				emprestaDinheiro(ref1, ref2, valor);
 				break;
 
 			case 'p':
 				scanf(" %d %d %d", &ref1, &ref2, &valor);
 				apanhaNEWLINE;
-				printf("p:\nRef1: %d\nRef2: %d\nValor: %d\n", ref1, ref2, valor);
+				paybackDinheiro(ref1, ref2, valor);
 				break;
 
 			case 'l':
@@ -132,6 +137,14 @@ void reviveBank(int ref){
 	bankList[indice].rating = BOM;
 }
 
+void emprestaDinheiro(int ref1, int ref2, int valor){
+	transfereDinheiro(ref1, ref2, valor, EMPRESTA);
+}
+
+void paybackDinheiro(int ref1, int ref2, int valor){
+	transfereDinheiro(ref1, ref2, valor, DEVOLVE);
+}
+
 
 /* Funcoes 'auxiliares' */
 int indBankRef(int ref){
@@ -144,6 +157,33 @@ int indBankRef(int ref){
 		if(bankList[i].ref == ref)
 			return i;
 	return -1;
+}
+
+void transfereDinheiro(int ref1, int ref2, int valor, int modo){
+	/* Empresta ou devolve valor entre os bancos de ref1 e ref2: *
+	 * (ref1 <modo> ref2 o valor) em que o modo pode ser:		 *
+	 * <modo> ::= EMPRESTA ou DEVOLVE 							 *
+	 * Altera a matriz de adjacencias (bankMat global) 			 */	
+
+	 int ind1, ind2;
+	 ind1 = indBankRef(ref1);
+	 ind2 = indBankRef(ref2);
+
+	 if(modo == EMPRESTA){
+	 	if(bankMat[ind1][ind2] == 0 && bankMat[ind2][ind1] == 0){
+	 		bankList[ind1].partners++;
+	 		bankList[ind2].partners++;
+	 	}
+	 	bankMat[ind2][ind1] += valor;
+	 }
+	 else{
+	 	/* modo == DEVOLVE */
+	 	bankMat[ind1][ind2] -= valor;
+	 	if (bankMat[ind2][ind1] == 0 && bankMat[ind1][ind2] == 0){
+			bankList[ind1].partners--;
+			bankList[ind2].partners--;
+		}
+	 }
 }
 
 
