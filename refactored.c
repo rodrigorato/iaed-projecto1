@@ -25,6 +25,7 @@ typedef struct Banco{
 int bankMat[MAXBANKS][MAXBANKS]; /* Matriz de adjacencias */
 int bankInd = 0; /* Indice de bancos - conta quantos ha  */
 bank bankList[MAXBANKS];
+int listaHistograma[MAXBANKS]; /* Inicializada no inicio da main */
 
 /* Prototipos de funcoes */
 void addBank(char nome[], int rating, int ref);
@@ -41,7 +42,7 @@ int calcValues(int indiceBanco, int op);
 void histogramaParceiros();
 void lastStats();
 int weakestLink();
-
+void limpaLista(int lista[], int size);
 
 
 /* Programa - Funcoes */
@@ -53,6 +54,8 @@ int main(){
 
 	int rating, ref1, ref2, valor, tipo; 
 	char nome[MAXNAME], command;
+
+	limpaLista(listaHistograma, MAXBANKS);
 
 	while(1){
 		command = getchar();
@@ -126,6 +129,7 @@ void addBank(char nome[], int rating, int ref){
 		newBank.rating = rating;
 		newBank.ref = ref;
 		newBank.partners = 0;
+		listaHistograma[0]++;
 		bankList[bankInd] = newBank;		
 
 		for(j = 0; j <= bankInd; j++){
@@ -222,17 +226,30 @@ void transfereDinheiro(int ref1, int ref2, int valor, int modo){
 
 	 if(modo == EMPRESTA){
 	 	if(bankMat[ind1][ind2] == 0 && bankMat[ind2][ind1] == 0){
+	 		listaHistograma[bankList[ind1].partners]--;
+	 		listaHistograma[bankList[ind2].partners]--;
+
 	 		bankList[ind1].partners++;
 	 		bankList[ind2].partners++;
+
+	 		listaHistograma[bankList[ind1].partners]++;
+	 		listaHistograma[bankList[ind2].partners]++;
 	 	}
+
 	 	bankMat[ind2][ind1] += valor;
 	 }
 	 else{
 	 	/* modo == DEVOLVE */
 	 	bankMat[ind1][ind2] -= valor;
 	 	if (bankMat[ind2][ind1] == 0 && bankMat[ind1][ind2] == 0){
-			bankList[ind1].partners--;
-			bankList[ind2].partners--;
+	 		listaHistograma[bankList[ind1].partners]--;
+	 		listaHistograma[bankList[ind2].partners]--;
+
+	 		bankList[ind1].partners--;
+	 		bankList[ind2].partners--;
+
+	 		listaHistograma[bankList[ind1].partners]++;
+	 		listaHistograma[bankList[ind2].partners]++;
 		}
 	 }
 }
@@ -276,14 +293,7 @@ int calcValues(int indiceBanco, int op){
 }
 
 void histogramaParceiros(){
-	int i, listaHistograma[MAXBANKS];
-
-	for(i = 0; i < bankInd; i++)
-		listaHistograma[i] = 0;
-
-	for(i = 0; i < bankInd; i++)
-		listaHistograma[bankList[i].partners]++;
-
+	int i;
 	for(i = 0; i < bankInd; i++)
 		if(listaHistograma[i] != 0)
 			printf("%d %d\n", i, listaHistograma[i]);
@@ -310,4 +320,10 @@ int weakestLink(){
 		}
 	}
 	return refFinal;
+}
+
+void limpaLista(int lista[],int size){
+	int i;
+	for(i = 0; i < size; i++)
+		lista[i] = 0;
 }
