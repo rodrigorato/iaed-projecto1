@@ -99,7 +99,7 @@ int main(){
 
 			case 'x':
 				apanhaNEWLINE;
-				printf("eXit!\n");
+				lastStats();
 				return EXIT_SUCCESS;
 
 			default:
