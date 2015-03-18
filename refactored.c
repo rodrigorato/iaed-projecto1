@@ -31,12 +31,15 @@ void reviveBank(int ref);
 void emprestaDinheiro(int ref1, int ref2, int valor);
 void paybackDinheiro(int ref1, int ref2, int valor);
 void listData(int tipo);
+void killWorst();
 
 int indBankRef(int ref);
 void transfereDinheiro(int ref1, int ref2, int valor, int modo);
 void putValues(int indiceBanco);
 int calcValues(int indiceBanco, int op);
 void histogramaParceiros();
+void lastStats();
+int weakestLink();
 
 
 
@@ -91,7 +94,7 @@ int main(){
 
 			case 'K':
 				apanhaNEWLINE;
-				printf("K!\n");
+				killWorst();
 				break;
 
 			case 'x':
@@ -116,17 +119,21 @@ void addBank(char nome[], int rating, int ref){
 	int j;
 	bank newBank;
 
-	strcpy(newBank.nome, nome);
-	newBank.rating = rating;
-	newBank.ref = ref;
-	bankList[bankInd] = newBank;
+	if(bankInd != MAXBANKS){
+		/* No caso contrario ja nao podemos guardar mais bancos */
+		strcpy(newBank.nome, nome);
+		newBank.rating = rating;
+		newBank.ref = ref;
+		newBank.partners = 0;
+		bankList[bankInd] = newBank;		
 
-	for(j = 0; j <= bankInd; j++){
-		bankMat[bankInd][j] = 0;
-		bankMat[j][bankInd] = 0;
+		for(j = 0; j <= bankInd; j++){
+			bankMat[bankInd][j] = 0;
+			bankMat[j][bankInd] = 0;
+		}
+
+		bankInd++;
 	}
-
-	bankInd++;
 }
 
 void killBank(int ref){
@@ -173,6 +180,19 @@ void listData(int tipo){
 			histogramaParceiros(); /* Escreve o histograma dos parceiros entre bancos */
 			break;
 	}
+}
+
+void killWorst(){
+	int refWeakest, bankWorstInd;
+	refWeakest = weakestLink();
+	if(refWeakest != -1){
+		killBank(refWeakest);
+		bankWorstInd = indBankRef(refWeakest);
+		printf("*%d %s %d ", refWeakest, bankList[bankWorstInd].nome, bankList[bankWorstInd].rating);
+		putValues(bankWorstInd);
+		printf("\n");
+	}
+	lastStats();
 }
 
 
@@ -252,7 +272,7 @@ int calcValues(int indiceBanco, int op){
 		case 3:
 			/* outVM: usado pelo comando 'K' - valor total emprestado pelo banco a bancos 'maus' */
 			for(i=0; i<bankInd; i++){
-				if(bankList[i].rating == 0)
+				if(bankList[i].rating == MAU)
 					result += bankMat[i][indiceBanco];
 			}
 			break;
@@ -264,7 +284,7 @@ int calcValues(int indiceBanco, int op){
 		case 5:
 			/* inVM: valor total emprestado ao banco por bancos maus */
 			for(i=0; i<bankInd; i++)
-				if(bankList[i].rating == 0)
+				if(bankList[i].rating == MAU)
 					result += bankMat[indiceBanco][i];
 			break;
 	}
@@ -286,10 +306,29 @@ void histogramaParceiros(){
 			printf("%d %d\n", i, listaHistograma[i]);
 }
 
+void lastStats(){
+	int i, bons = 0;
+	for(i = 0; i < bankInd; i++)
+		if(bankList[i].rating == BOM)
+			bons++;
+	printf("%d %d\n", bankInd, bons);
+}
+
+int weakestLink(){
+	/* Devolve a referencia do pior banco *
+	 *          -1 caso nao o haja	      */
+
+	int tempDivida = 0, refFinal = -1, actDivida = -1, i;
+	for(i = 0; i < bankInd; i++){
+		actDivida = calcValues(i, 3);
+		if(bankList[i].rating == BOM && actDivida >= tempDivida && actDivida != 0){
+			tempDivida = actDivida;
+			refFinal = bankList[i].ref;
+		}
+	}
+	return refFinal;
+}
 
 
 
-/* PASTA ZONE
 
-
-*/
