@@ -25,7 +25,7 @@ typedef struct Banco{
 int bankMat[MAXBANKS][MAXBANKS]; /* Matriz de adjacencias */
 int bankInd = 0; /* Indice de bancos - conta quantos ha  */
 bank bankList[MAXBANKS];
-int listaHistograma[MAXBANKS]; /* Inicializada no inicio da main */
+int listaHistograma[MAXBANKS]; /* Vai sendo limpa a medida que sao adicionados bancos */
 
 /* Prototipos de funcoes */
 void addBank(char nome[], int rating, int ref);
@@ -42,8 +42,6 @@ int calcValues(int indiceBanco, int op);
 void histogramaParceiros();
 void lastStats();
 int weakestLink();
-void limpaLista(int lista[], int size);
-
 
 /* Programa - Funcoes */
 
@@ -54,8 +52,6 @@ int main(){
 
 	int rating, ref1, ref2, valor, tipo; 
 	char nome[MAXNAME], command;
-
-	limpaLista(listaHistograma, MAXBANKS);
 
 	while(1){
 		command = getchar();
@@ -129,6 +125,7 @@ void addBank(char nome[], int rating, int ref){
 		newBank.rating = rating;
 		newBank.ref = ref;
 		newBank.partners = 0;
+		listaHistograma[bankInd] = 0;
 		listaHistograma[0]++;
 		bankList[bankInd] = newBank;		
 
@@ -320,10 +317,4 @@ int weakestLink(){
 		}
 	}
 	return refFinal;
-}
-
-void limpaLista(int lista[],int size){
-	int i;
-	for(i = 0; i < size; i++)
-		lista[i] = 0;
 }
