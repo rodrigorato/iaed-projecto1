@@ -23,6 +23,11 @@ bank bankList[MAXBANKS];
 
 /* Prototipos de funcoes */
 void addBank(char nome[], int rating, int ref);
+void killBank(int ref);
+void reviveBank(int ref);
+
+int indBankRef(int ref);
+
 
 
 /* Programa - Funcoes */
@@ -47,13 +52,13 @@ int main(){
 			case 'k':
 				scanf(" %d", &ref1);
 				getchar(); /* Apanha um '\n' que ficou por apanhar */
-				printf("k:\nReferencia: %d\n", ref1);
+				killBank(ref1);
 				break;
 
 			case 'r':
 				scanf(" %d", &ref1);
 				getchar(); /* Apanha um '\n' que ficou por apanhar */
-				printf("r:\nReferencia: %d\n", ref1);
+				reviveBank(ref1);
 				break;
 
 			case 'e':
@@ -91,12 +96,13 @@ int main(){
 	return EXIT_FAILURE;
 }
 
-
+/* Funcoes do 'menu' */
 void addBank(char nome[], int rating, int ref){
 	/* Cria um novo banco, adiciona-o a lista		*
 	 * de bancos (com os dados que recebe)			*
 	 * e prepara as suas entradas na matriz.		*
 	 * Altera o indice de bancos (adjacInd global)  */
+
 	int j;
 	bank newBank;
 
@@ -105,7 +111,7 @@ void addBank(char nome[], int rating, int ref){
 	newBank.ref = ref;
 	bankList[bankInd] = newBank;
 
-	for(j = 0; i <= bankInd; j++){
+	for(j = 0; j <= bankInd; j++){
 		bankMat[bankInd][j] = 0;
 		bankMat[j][bankInd] = 0;
 	}
@@ -113,7 +119,36 @@ void addBank(char nome[], int rating, int ref){
 	bankInd++;
 }
 
+void killBank(int ref){
+	/* Classifica como MAU o banco cuja referencia recebe */
+	int indice = indBankRef(ref);
+	bankList[indice].rating = MAU;
+}
+
+void reviveBank(int ref){
+	/* Classifica como BOM o banco cuja referencia recebe */
+	int indice = indBankRef(ref);
+	bankList[indice].rating = BOM;
+}
+
+
+/* Funcoes 'auxiliares' */
+int indBankRef(int ref){
+	/* Devolve o indice de dado banco que recebe	*
+	 * a referencia por argumento. Caso nao exista 	*
+	 * devolve o inteiro '-1'.						*/
+
+	int i;
+	for(i = 0; i < bankInd; i++)
+		if(bankList[i].ref == ref)
+			return i;
+	return -1;
+}
+
+
 /* PASTA ZONE
+
+
 
 
 
