@@ -30,9 +30,13 @@ void killBank(int ref);
 void reviveBank(int ref);
 void emprestaDinheiro(int ref1, int ref2, int valor);
 void paybackDinheiro(int ref1, int ref2, int valor);
+void listData(int tipo);
 
 int indBankRef(int ref);
 void transfereDinheiro(int ref1, int ref2, int valor, int modo);
+void putValues(int indiceBanco);
+int calcValues(int indiceBanco, int op);
+void histogramaParceiros();
 
 
 
@@ -82,7 +86,7 @@ int main(){
 			case 'l':
 				scanf(" %d", &tipo);
 				apanhaNEWLINE;
-				printf("l:\nTipo: %d\n", tipo);
+				listData(tipo);
 				break;
 
 			case 'K':
@@ -138,11 +142,37 @@ void reviveBank(int ref){
 }
 
 void emprestaDinheiro(int ref1, int ref2, int valor){
+	/* Empresta dinheiro de valor de ref1 para ref2 */
 	transfereDinheiro(ref1, ref2, valor, EMPRESTA);
 }
 
 void paybackDinheiro(int ref1, int ref2, int valor){
+	/* Devolve dinheiro de valor de ref1 para ref2 */
 	transfereDinheiro(ref1, ref2, valor, DEVOLVE);
+}
+
+void listData(int tipo){
+	/* Escreve a listagem de informacao conforme o enunciado */
+
+	int i;
+	switch(tipo){
+		case 0:
+			for(i = 0; i < bankInd; i++)
+				printf("%d %s %d\n", bankList[i].ref, bankList[i].nome, bankList[i].rating);
+			break;
+
+		case 1:
+			for(i = 0; i < bankInd; i++){
+				printf("%d %s %d ", bankList[i].ref, bankList[i].nome, bankList[i].rating);
+				putValues(i); /* Escreve estatisticas de dado banco */
+				printf("\n");
+			}
+			break;
+
+		case 2:
+			histogramaParceiros(); /* Escreve o histograma dos parceiros entre bancos */
+			break;
+	}
 }
 
 
@@ -186,14 +216,80 @@ void transfereDinheiro(int ref1, int ref2, int valor, int modo){
 	 }
 }
 
+void putValues(int indiceBanco){
+	/* Escreve as estatisticas de dado banco *
+	 * para mais detalhes ver calcValues();  */
+
+	int op;
+	for(op = 0; op < 5; op++)
+		printf("%d ", calcValues(indiceBanco, op));
+	printf("%d", calcValues(indiceBanco, op)); /* para nao imprimir um ultimo espaco */
+}
+
+int calcValues(int indiceBanco, int op){
+	/* Calcula estatisticas de dado banco, explicado em comentarios posteriores */
+	int result = 0, i;
+	switch(op){
+		case 0:
+			/* inP: numero total de bancos parceiros a quem o banco tem divida */
+			for(i=0; i<bankInd; i++){
+				if(bankMat[indiceBanco][i] != 0)
+					result++;
+			}
+			break;
+		case 1:
+			/* outP: numero total de bancos parceiros a quem o banco tem dinheiro emprestado */
+			for(i=0; i<bankInd; i++){
+				if(bankMat[i][indiceBanco] != 0)
+					result++;
+			}
+			break;
+		case 2:
+			/* outV: valor total emprestado pelo banco a outros */
+			for(i=0; i<bankInd; i++)
+				result += bankMat[i][indiceBanco];
+			break;
+		case 3:
+			/* outVM: usado pelo comando 'K' - valor total emprestado pelo banco a bancos 'maus' */
+			for(i=0; i<bankInd; i++){
+				if(bankList[i].rating == 0)
+					result += bankMat[i][indiceBanco];
+			}
+			break;
+		case 4:
+			/* inV: valor total emprestado ao banco por outros bancos */
+			for(i=0; i<bankInd; i++)
+				result += bankMat[indiceBanco][i];
+			break;
+		case 5:
+			/* inVM: valor total emprestado ao banco por bancos maus */
+			for(i=0; i<bankInd; i++)
+				if(bankList[i].rating == 0)
+					result += bankMat[indiceBanco][i];
+			break;
+	}
+
+	return result;
+}
+
+void histogramaParceiros(){
+	int i, listaHistograma[MAXBANKS];
+
+	for(i = 0; i < bankInd; i++)
+		listaHistograma[i] = 0;
+
+	for(i = 0; i < bankInd; i++)
+		listaHistograma[bankList[i].partners]++;
+
+	for(i = 0; i < bankInd; i++)
+		if(listaHistograma[i] != 0)
+			printf("%d %d\n", i, listaHistograma[i]);
+}
+
+
+
 
 /* PASTA ZONE
-
-
-
-
-
-
 
 
 */
