@@ -183,8 +183,10 @@ void payback(bank bankList[], int adjacMat[][MAXBANKS]){
 
 void putValues(bank bankList[], int adjacMat[][MAXBANKS], int indBanco, int adjacInd){
 	int i;
-	for(i=0; i<6; i++)
+	for(i=0; i<5; i++)
 		printf("%d ", ammountMoney(bankList, adjacMat, indBanco, adjacInd, i));
+	/* Pode ser melhorado - para nao imprimir um espaco no ultimo printf() */
+	printf("%d", ammountMoney(bankList, adjacMat, indBanco, adjacInd, i));
 }
 
 
