@@ -6,6 +6,7 @@
 #define MAXBANKS 1000 /* Definido pelo enunciado - maximo de bancos = 10^3 */
 #define BOM 1 /* Para classificar bancos ditos bons */
 #define MAU 0 /* Para classificar bancos ditos maus */
+#define apanhaNEWLINE getchar() /* Para apanhar '\n's do utilizador de forma legivel */
 
 
 /* ESTRUTURA - Banco */
@@ -45,47 +46,47 @@ int main(){
 		switch(command){
 			case 'a':
 				scanf(" %s %d %d", nome, &rating, &ref1);
-				getchar(); /* Apanha um '\n' que ficou por apanhar */
+				apanhaNEWLINE;
 				addBank(nome, rating, ref1);
 				break;
 
 			case 'k':
 				scanf(" %d", &ref1);
-				getchar(); /* Apanha um '\n' que ficou por apanhar */
+				apanhaNEWLINE;
 				killBank(ref1);
 				break;
 
 			case 'r':
 				scanf(" %d", &ref1);
-				getchar(); /* Apanha um '\n' que ficou por apanhar */
+				apanhaNEWLINE;
 				reviveBank(ref1);
 				break;
 
 			case 'e':
 				scanf(" %d %d %d", &ref1, &ref2, &valor);
-				getchar(); /* Apanha um '\n' que ficou por apanhar */
+				apanhaNEWLINE;
 				printf("e:\nRef1: %d\nRef2: %d\nValor: %d\n", ref1, ref2, valor);
 				break;
 
 			case 'p':
 				scanf(" %d %d %d", &ref1, &ref2, &valor);
-				getchar(); /* Apanha um '\n' que ficou por apanhar */
+				apanhaNEWLINE;
 				printf("p:\nRef1: %d\nRef2: %d\nValor: %d\n", ref1, ref2, valor);
 				break;
 
 			case 'l':
 				scanf(" %d", &tipo);
-				getchar(); /* Apanha um '\n' que ficou por apanhar */
+				apanhaNEWLINE;
 				printf("l:\nTipo: %d\n", tipo);
 				break;
 
 			case 'K':
-				getchar(); /* Apanha um '\n' que ficou por apanhar */
+				apanhaNEWLINE;
 				printf("K!\n");
 				break;
 
 			case 'x':
-				getchar(); /* Apanha um '\n' que ficou por apanhar */
+				apanhaNEWLINE;
 				printf("eXit!\n");
 				return EXIT_SUCCESS;
 
