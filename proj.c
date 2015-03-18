@@ -205,8 +205,9 @@ int addBank(bank bankList[], int adjacInd, int adjacMat[][MAXBANKS]){
 	bank newBank;
 	newBank.partners=0;
 
-	scanf(" %s", newBank.nome);
-	scanf(" %d %d", &newBank.rating, &newBank.ref);
+	scanf(" %s %d %d", newBank.nome, &newBank.rating, &newBank.ref);
+	/*scanf(" %s", newBank.nome);
+	scanf(" %d %d", &newBank.rating, &newBank.ref);*/
 	bankList[adjacInd] = newBank;
 
 	for(j=0;j<=adjacInd;j++){
@@ -214,7 +215,9 @@ int addBank(bank bankList[], int adjacInd, int adjacMat[][MAXBANKS]){
 		adjacMat[j][adjacInd]=0;
 	}
 
-	return (++adjacInd);
+	adjacInd++;
+
+	return adjacInd;
 }
 
 void killBank(bank bankList[]){
