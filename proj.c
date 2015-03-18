@@ -156,10 +156,9 @@ int ammountMoney(bank bankList[], int adjacMat[][MAXBANKS], int bankInd, int max
 			break;
 		case 5:
 			/* inVM: valor total emprestado ao banco por bancos maus */
-			for(i=0; i<maxInd; i++){
+			for(i=0; i<maxInd; i++)
 				if(bankList[i].rating == 0)
 					result += adjacMat[bankInd][i];
-			}
 			break;
 	}
 	return result;
@@ -207,7 +206,6 @@ int addBank(bank bankList[], int adjacInd, int adjacMat[][MAXBANKS]){
 		adjacMat[adjacInd][j]=0;
 		adjacMat[j][adjacInd]=0;
 	}
-
 
 	return (++adjacInd);
 }
@@ -269,7 +267,7 @@ void killWorst(bank bankList[], int adjacMat[][MAXBANKS], int adjacInd){
 void goodStats(bank bankList[], int adjacInd){
 	int i, bons=0;
 	for (i=0;i<adjacInd;i++)
-		if (bankList[i].rating==1)
+		if(bankList[i].rating==1)
 			bons++;
 	printf("%d %d\n", adjacInd, bons);
 }
