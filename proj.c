@@ -1,7 +1,6 @@
 #include <stdio.h>
 
-#define MAXNAME 41 /*	Um nome tem no maximo 40 letras *
-					* 41 pois o char '\0' ocupa 1 pos.  */
+#define MAXNAME 41
 
 #define MAXBANKS 1000 /* 10^3 */
 
@@ -10,7 +9,7 @@
 typedef struct Banco{
 	char nome[MAXNAME];
 	int ref;
-	short int rating;/*1-bom, 0-mau, qualquer outro valor-invalido*/
+	int rating;/*1-bom, 0-mau, qualquer outro valor-invalido*/
 	int partners;
 }bank;
 
@@ -98,7 +97,7 @@ void transactions(bank bankList[], int way, int adjacMat[][MAXBANKS]){/*way=0 ->
 	scanf(" %d %d %d", &ref1, &ref2, &money);
 	i1=indBankRef(bankList, ref1);
 	i2=indBankRef(bankList, ref2);
-	if 	(way==0){
+	if(way==0){
 		if (adjacMat[i2][i1]==0 && adjacMat[i1][i2]==0 ){
 			bankList[i1].partners++;
 			bankList[i2].partners++;
@@ -121,9 +120,8 @@ int addBank(bank bankList[], int adjacInd, int adjacMat[][MAXBANKS]){
 	bank newBank;
 	newBank.partners=0;
 
-	/*scanf(" %s %d %hd", newBank.nome, &newBank.ref, &newBank.rating);*/
 	scanf(" %s", newBank.nome);
-	scanf(" %hd %d", &newBank.rating, &newBank.ref);
+	scanf(" %d %d", &newBank.rating, &newBank.ref);
 	bankList[adjacInd] = newBank;
 
 	for(j=0;j<=adjacInd;j++){
