@@ -38,9 +38,9 @@ void initBankList(bank bankList[]);
 
 int main(){	
 	int adjacMat[MAXBANKS][MAXBANKS], adjacInd=0;
+	char c;
 	bank bankList[MAXBANKS];
 	initBankList(bankList);
-	char c;
 	while((c = getchar()) != 'x'){
 		switch(c){
 			case 'a':
