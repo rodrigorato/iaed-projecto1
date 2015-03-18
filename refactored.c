@@ -186,7 +186,8 @@ void listData(int tipo){
 }
 
 void killWorst(){
-	int refWeakest, bankWorstInd;
+	long refWeakest;
+	int bankWorstInd;
 	refWeakest = weakestLink();
 	if(refWeakest != -1){
 		killBank(refWeakest);
