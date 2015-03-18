@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #define MAXNAME 41
 
@@ -40,7 +41,9 @@ int main(){
 	char c;
 	bank bankList[MAXBANKS];
 	initBankList(bankList);
-	while((c = getchar()) != 'x'){
+
+	while(1){
+		c = getchar();
 		switch(c){
 			case 'a':
 				adjacInd = addBank(bankList, adjacInd, adjacMat);
@@ -61,13 +64,17 @@ int main(){
 				list(bankList, adjacMat, adjacInd);
 				break;
 			case 'K':
-				/*getchar();*/
 				killWorst(bankList, adjacMat, adjacInd);
 				break;
+			case 'x':
+				goodStats(bankList, adjacInd);
+				return EXIT_SUCCESS;
+			default:
+				printf("ERRO!\n");
 		}
+		getchar();
 	}
-	goodStats(bankList, adjacInd);	
-	return 0;
+	return EXIT_FAILURE;
 }
 
 
@@ -266,7 +273,7 @@ void killWorst(bank bankList[], int adjacMat[][MAXBANKS], int adjacInd){
 
 void goodStats(bank bankList[], int adjacInd){
 	int i, bons=0;
-	for (i=0;i<adjacInd;i++)
+	for(i=0;i<adjacInd;i++)
 		if(bankList[i].rating==1)
 			bons++;
 	printf("%d %d\n", adjacInd, bons);
