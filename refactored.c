@@ -129,12 +129,7 @@ void addBank(char nome[], int rating, long ref){
 		listaHistograma[bankInd] = 0;
 		listaHistograma[0]++;
 		bankList[bankInd] = newBank;		
-
-		for(j = 0; j <= bankInd; j++){
-			bankMat[bankInd][j] = 0;
-			bankMat[j][bankInd] = 0;
-		}
-
+		
 		bankInd++;
 	}
 }
