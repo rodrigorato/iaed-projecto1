@@ -52,62 +52,59 @@ int main(){
 
 	int rating, valor, tipo; 
 	long ref1, ref2;
-	char nome[MAXNAME], command;
+	char nome[MAXNAME], command = getchar();
 
-	while(1){
-		command = getchar();
+	while(command != 'x'){
 		switch(command){
 			case 'a':
-				scanf(" %s %d %ld", nome, &rating, &ref1);
+				scanf("%c %s %d %ld", &command, nome, &rating, &ref1);
 				apanhaNEWLINE;
 				addBank(nome, rating, ref1);
 				break;
 
 			case 'k':
-				scanf(" %ld", &ref1);
+				scanf("%c %ld", &command, &ref1);
 				apanhaNEWLINE;
 				killBank(ref1);
 				break;
 
 			case 'r':
-				scanf(" %ld", &ref1);
+				scanf("%c %ld", &command, &ref1);
 				apanhaNEWLINE;
 				reviveBank(ref1);
 				break;
 
 			case 'e':
-				scanf(" %ld %ld %d", &ref1, &ref2, &valor);
+				scanf("%c %ld %ld %d", &command, &ref1, &ref2, &valor);
 				apanhaNEWLINE;
 				emprestaDinheiro(ref1, ref2, valor);
 				break;
 
 			case 'p':
-				scanf(" %ld %ld %d", &ref1, &ref2, &valor);
+				scanf("%c %ld %ld %d", &command, &ref1, &ref2, &valor);
 				apanhaNEWLINE;
 				paybackDinheiro(ref1, ref2, valor);
 				break;
 
 			case 'l':
-				scanf(" %d", &tipo);
+				scanf("%c %d", &command, &tipo);
 				apanhaNEWLINE;
 				listData(tipo);
 				break;
 
 			case 'K':
-				apanhaNEWLINE;
+				scanf("%c", &command);
 				killWorst();
 				break;
-
-			case 'x':
-				apanhaNEWLINE;
-				lastStats();
-				return EXIT_SUCCESS;
 
 			default:
 				printf("ERRO - Comando invalido!\n");
 		}
+		command = getchar();
 	}
-	return EXIT_FAILURE;
+
+	lastStats();
+	return 0;
 }
 
 /* Funcoes do 'menu' */
