@@ -211,28 +211,38 @@ void transfereDinheiro(long ref1, long ref2, int valor, int modo){
 int calcValues(int indiceBanco, int op){
 	/* Calcula estatisticas de dado banco, explicado em comentarios posteriores */
 	int i, inP = 0, outP = 0, outV = 0, outVM = 0, inV = 0, inVM = 0;
-		/* OUTVM: usado pelo comando 'K' - valor total emprestado pelo banco a bancos 'maus' */
-	for(i=0; i<bankInd; i++){
-		if(bankList[i].rating == MAU){
-			outVM += bankMat[i][indiceBanco];
-			inVM += bankMat[indiceBanco][i];
-		}
-			
-		if(bankMat[indiceBanco][i] != 0)
-			inP++;
-			
-		if(bankMat[i][indiceBanco] != 0)
-			outP++;
-			
-		outV += bankMat[i][indiceBanco];
+	switch(op){
+		case OUTVM:
+			/* OUTVM: usado pelo comando 'K' - valor total emprestado pelo banco a bancos 'maus' */
+			for(i=0; i<bankInd; i++){
+				if(bankList[i].rating == MAU)
+					outVM += bankMat[i][indiceBanco];
+			}
+			break;
 
-		inV += bankMat[indiceBanco][i];
+		case printTODOS:
+			/* printTODOS - calculando ao mesmo tempo para diminuir complexidade */
+			for(i = 0; i < bankInd; i++){
+				if(bankMat[indiceBanco][i] != 0)
+					inP++;
+				
+				if(bankMat[i][indiceBanco] != 0)
+					outP++;
+				
+				outV += bankMat[i][indiceBanco];
 
+				if(bankList[i].rating == MAU)
+					outVM += bankMat[i][indiceBanco];
+
+				inV += bankMat[indiceBanco][i];
+
+				if(bankList[i].rating == MAU)
+					inVM += bankMat[indiceBanco][i];
+			}
+
+			printf("%d %d %d %d %d %d", inP, outP, outV, outVM, inV, inVM);
+			break;
 	}
-
-	if(op == printTODOS)
-		printf("%d %d %d %d %d %d", inP, outP, outV, outVM, inV, inVM);
-
 	return outVM;
 }
 
