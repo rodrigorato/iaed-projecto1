@@ -29,7 +29,7 @@ int listaHistograma[MAXBANKS]; /* Vai sendo limpa a medida que sao adicionados b
 
 /* Prototipos de funcoes */
 void addBank(char nome[], int rating, long ref);
-void killBank(long ref);
+int killBank(long ref);
 void reviveBank(long ref);
 void emprestaDinheiro(long ref1, long ref2, int valor);
 void paybackDinheiro(long ref1, long ref2, int valor);
@@ -130,11 +130,12 @@ void addBank(char nome[], int rating, long ref){
 	}
 }
 
-void killBank(long ref){
+int killBank(long ref){
 	/* Classifica como MAU o banco cuja referencia recebe */
 	int indice = indBankRef(ref);
 	if(indice != -1)
 		bankList[indice].rating = MAU;
+	return indice;
 }
 
 void reviveBank(long ref){
@@ -183,8 +184,7 @@ void killWorst(){
 	int bankWorstInd;
 	refWeakest = weakestLink();
 	if(refWeakest != -1){
-		killBank(refWeakest);
-		bankWorstInd = indBankRef(refWeakest);
+		bankWorstInd = killBank(refWeakest);
 		printf("*%ld %s %d ", refWeakest, bankList[bankWorstInd].nome, bankList[bankWorstInd].rating);
 		calcValues(bankWorstInd, printTODOS);
 		printf("\n");
