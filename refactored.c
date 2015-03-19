@@ -46,7 +46,7 @@ int weakestLink();
 /* Programa - Funcoes */
 
 int main(){
-	
+
 	int rating, valor, tipo; 
 	long ref1, ref2;
 	char nome[MAXNAME], command = getchar();
