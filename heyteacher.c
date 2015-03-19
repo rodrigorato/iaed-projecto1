@@ -143,9 +143,11 @@ void killWorst(){
 	refWeakest = weakestLink();
 	if(refWeakest != -1){
 		bankWorstInd = killBank(refWeakest);
-		printf("*%d %s %d ", refWeakest, bankList[bankWorstInd].nome, bankList[bankWorstInd].rating);
-		calcValues(bankWorstInd, printTODOS);
-		printf("\n");
+		if(bankWorstInd != -1){
+			printf("*%d %s %d ", refWeakest, bankList[bankWorstInd].nome, bankList[bankWorstInd].rating);
+			calcValues(bankWorstInd, printTODOS);
+			printf("\n");
+		}
 	}
 	lastStats();
 }
@@ -240,6 +242,7 @@ int calcValues(int indiceBanco, int op){
 
 			printf("%d %d %d %d %d %d", inP, outP, outV, outVM, inV, inVM);
 			break;
+			
 	}
 	return outVM;
 }
