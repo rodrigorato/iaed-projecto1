@@ -117,7 +117,6 @@ void addBank(char nome[], int rating, long ref){
 	 * e prepara as suas entradas na matriz.		*
 	 * Altera o indice de bancos (adjacInd global)  */
 
-	int j;
 	bank newBank;
 
 	if(bankInd != MAXBANKS && ref > 0){
@@ -129,7 +128,7 @@ void addBank(char nome[], int rating, long ref){
 		listaHistograma[bankInd] = 0;
 		listaHistograma[0]++;
 		bankList[bankInd] = newBank;		
-		
+
 		bankInd++;
 	}
 }
