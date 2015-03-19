@@ -120,7 +120,7 @@ void addBank(char nome[], int rating, long ref){
 	int j;
 	bank newBank;
 
-	if(bankInd != MAXBANKS){
+	if(bankInd != MAXBANKS && ref > 0){
 		/* No caso contrario ja nao podemos guardar mais bancos */
 		strcpy(newBank.nome, nome);
 		newBank.rating = rating;
@@ -142,13 +142,15 @@ void addBank(char nome[], int rating, long ref){
 void killBank(long ref){
 	/* Classifica como MAU o banco cuja referencia recebe */
 	int indice = indBankRef(ref);
-	bankList[indice].rating = MAU;
+	if(indice != -1)
+		bankList[indice].rating = MAU;
 }
 
 void reviveBank(long ref){
 	/* Classifica como BOM o banco cuja referencia recebe */
 	int indice = indBankRef(ref);
-	bankList[indice].rating = BOM;
+	if(indice != -1)
+		bankList[indice].rating = BOM;
 }
 
 void emprestaDinheiro(long ref1, long ref2, int valor){
@@ -223,34 +225,36 @@ void transfereDinheiro(long ref1, long ref2, int valor, int modo){
 	 ind1 = indBankRef(ref1);
 	 ind2 = indBankRef(ref2);
 
-	 if(modo == EMPRESTA){
-	 	if(bankMat[ind1][ind2] == 0 && bankMat[ind2][ind1] == 0){
-	 		listaHistograma[bankList[ind1].partners]--;
-	 		listaHistograma[bankList[ind2].partners]--;
+	 if(valor > 0 && ind1 != -1 && ind2 != -1){
+	 	if(modo == EMPRESTA){
+	 		if(bankMat[ind1][ind2] == 0 && bankMat[ind2][ind1] == 0){
+	 			listaHistograma[bankList[ind1].partners]--;
+	 			listaHistograma[bankList[ind2].partners]--;
 
-	 		bankList[ind1].partners++;
-	 		bankList[ind2].partners++;
+	 			bankList[ind1].partners++;
+	 			bankList[ind2].partners++;
 
-	 		listaHistograma[bankList[ind1].partners]++;
-	 		listaHistograma[bankList[ind2].partners]++;
-	 	}
+	 			listaHistograma[bankList[ind1].partners]++;
+	 			listaHistograma[bankList[ind2].partners]++;
+		 	}
 
-	 	bankMat[ind2][ind1] += valor;
-	 }
-	 else{
-	 	/* modo == DEVOLVE */
-	 	bankMat[ind1][ind2] -= valor;
-	 	if (bankMat[ind2][ind1] == 0 && bankMat[ind1][ind2] == 0){
-	 		listaHistograma[bankList[ind1].partners]--;
-	 		listaHistograma[bankList[ind2].partners]--;
+	 		bankMat[ind2][ind1] += valor;
+		 }
+		 else{
+	 		/* modo == DEVOLVE */
+	 		bankMat[ind1][ind2] -= valor;
+	 		if (bankMat[ind2][ind1] == 0 && bankMat[ind1][ind2] == 0){
+	 			listaHistograma[bankList[ind1].partners]--;
+	 			listaHistograma[bankList[ind2].partners]--;
 
-	 		bankList[ind1].partners--;
-	 		bankList[ind2].partners--;
+	 			bankList[ind1].partners--;
+	 			bankList[ind2].partners--;
 
-	 		listaHistograma[bankList[ind1].partners]++;
-	 		listaHistograma[bankList[ind2].partners]++;
+	 			listaHistograma[bankList[ind1].partners]++;
+	 			listaHistograma[bankList[ind2].partners]++;
+			}
 		}
-	 }
+	}
 }
 
 int calcValues(int indiceBanco, int op){
