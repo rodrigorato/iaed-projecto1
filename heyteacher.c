@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 #define MAXNAME 41 /* Definido pelo enunciado - nome maximo de um banco */
@@ -28,7 +27,6 @@ int listaHistograma[MAXBANKS]; /* Vai sendo limpa a medida que sao adicionados b
 
 
 /* Prototipos de funcoes */
-int killBank(int ref);
 void listData(int tipo);
 void killWorst();
 
@@ -58,7 +56,9 @@ int main(){
 
 			case 'k':
 				scanf("%d", &ref1);
-				killBank(ref1);
+				temp = indBankRef(ref1);
+				if(temp != -1)
+					bankList[temp].rating = MAU;
 				break;
 
 			case 'r':
@@ -101,16 +101,6 @@ int main(){
 /* Funcoes do 'menu' */
 
 
-int killBank(int ref){
-	/* Classifica como MAU o banco cuja referencia recebe */
-	int indice = indBankRef(ref);
-	if(indice != -1)
-		bankList[indice].rating = MAU;
-	return indice;
-}
-
-
-
 
 void listData(int tipo){
 	/* Escreve a listagem de informacao conforme o enunciado */
@@ -139,15 +129,12 @@ void listData(int tipo){
 }
 
 void killWorst(){
-	int refWeakest, bankWorstInd;
-	refWeakest = weakestLink();
-	if(refWeakest != -1){
-		bankWorstInd = killBank(refWeakest);
-		if(bankWorstInd != -1){
-			printf("*%d %s %d ", refWeakest, bankList[bankWorstInd].nome, bankList[bankWorstInd].rating);
-			calcValues(bankWorstInd, printTODOS);
-			printf("\n");
-		}
+	int indWeakest = weakestLink();
+	if(indWeakest != -1){
+		bankList[indWeakest].rating = MAU;
+		printf("*%d %s %d ", bankList[indWeakest].ref, bankList[indWeakest].nome, bankList[indWeakest].rating);
+		calcValues(indWeakest, printTODOS);
+		printf("\n");
 	}
 	lastStats();
 }
@@ -259,13 +246,13 @@ int weakestLink(){
 	/* Devolve a referencia do pior banco *
 	 *          -1 caso nao o haja	      */
 
-	int tempDivida = 0, refFinal = -1, actDivida = -1, i;
+	int tempDivida = 0, indFinal = -1, actDivida = -1, i;
 	for(i = 0; i < bankInd; i++){
 		actDivida = calcValues(i, OUTVM);
 		if(bankList[i].rating == BOM && actDivida >= tempDivida && actDivida != 0){
 			tempDivida = actDivida;
-			refFinal = bankList[i].ref;
+			indFinal = i;
 		}
 	}
-	return refFinal;
+	return indFinal;
 }
