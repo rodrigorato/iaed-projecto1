@@ -24,7 +24,6 @@ typedef struct Banco{
 int bankMat[MAXBANKS][MAXBANKS]; /* Matriz de adjacencias */
 int bankInd = 0; /* Indice de bancos - conta quantos ha  */
 bank bankList[MAXBANKS];
-bank tempBank;
 int listaHistograma[MAXBANKS]; /* Vai sendo limpa a medida que sao adicionados bancos */
 
 
@@ -51,11 +50,10 @@ int main(){
 	while(command != 'x'){
 		switch(command){
 			case 'a':
-				scanf("%s%d%ld", tempBank.nome, &tempBank.rating, &tempBank.ref);
-				tempBank.partners = 0;
+				scanf("%s%d%ld", bankList[bankInd].nome, &bankList[bankInd].rating, &bankList[bankInd].ref);
+				bankList[bankInd].partners = 0;
 				listaHistograma[bankInd] = 0;
 				listaHistograma[0]++;
-				bankList[bankInd] = tempBank;
 				bankInd++;
 				break;
 
