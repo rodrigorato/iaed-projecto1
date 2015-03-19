@@ -10,7 +10,6 @@
 #define DEVOLVE 1 /* Legibilidade de transferencias - comando 'p' */
 #define OUTVM 0 /* calcValues - legibilidade */
 #define printTODOS 1 /* calcValues - legibilidade */
-#define apanhaNEWLINE getchar() /* Para apanhar '\n's do utilizador de forma legivel */
 
 
 /* ESTRUTURA - Banco */
@@ -53,49 +52,43 @@ int main(){
 	while(command != 'x'){
 		switch(command){
 			case 'a':
-				scanf("%c %s %d %ld", &command, nome, &rating, &ref1);
-				apanhaNEWLINE;
+				scanf("%s%d%ld", nome, &rating, &ref1);
 				addBank(nome, rating, ref1);
 				break;
 
 			case 'k':
-				scanf("%c %ld", &command, &ref1);
-				apanhaNEWLINE;
+				scanf("%ld", &ref1);
 				killBank(ref1);
 				break;
 
 			case 'r':
-				scanf("%c %ld", &command, &ref1);
-				apanhaNEWLINE;
+				scanf("%ld", &ref1);
 				reviveBank(ref1);
 				break;
 
 			case 'e':
-				scanf("%c %ld %ld %d", &command, &ref1, &ref2, &valor);
-				apanhaNEWLINE;
+				scanf("%ld%ld%d", &ref1, &ref2, &valor);
 				emprestaDinheiro(ref1, ref2, valor);
 				break;
 
 			case 'p':
-				scanf("%c %ld %ld %d", &command, &ref1, &ref2, &valor);
-				apanhaNEWLINE;
+				scanf("%ld%ld%d", &ref1, &ref2, &valor);
 				paybackDinheiro(ref1, ref2, valor);
 				break;
 
 			case 'l':
-				scanf("%c %d", &command, &tipo);
-				apanhaNEWLINE;
+				scanf("%d", &tipo);
 				listData(tipo);
 				break;
 
 			case 'K':
-				scanf("%c", &command);
 				killWorst();
 				break;
 
 			default:
 				printf("ERRO - Comando invalido!\n");
 		}
+		getchar(); /* gets the remaining '\n' */
 		command = getchar();
 	}
 
@@ -250,27 +243,26 @@ int calcValues(int indiceBanco, int op){
 	/* Calcula estatisticas de dado banco, explicado em comentarios posteriores */
 	int i, inP = 0, outP = 0, outV = 0, outVM = 0, inV = 0, inVM = 0;
 		/* OUTVM: usado pelo comando 'K' - valor total emprestado pelo banco a bancos 'maus' */
-		for(i=0; i<bankInd; i++){
-			if(bankList[i].rating == MAU){
-				outVM += bankMat[i][indiceBanco];
-				inVM += bankMat[indiceBanco][i];
-			}
-			
-			if(bankMat[indiceBanco][i] != 0)
-				inP++;
-			
-			if(bankMat[i][indiceBanco] != 0)
-				outP++;
-			
-			outV += bankMat[i][indiceBanco];
-
-
-			inV += bankMat[indiceBanco][i];
-
+	for(i=0; i<bankInd; i++){
+		if(bankList[i].rating == MAU){
+			outVM += bankMat[i][indiceBanco];
+			inVM += bankMat[indiceBanco][i];
 		}
+			
+		if(bankMat[indiceBanco][i] != 0)
+			inP++;
+			
+		if(bankMat[i][indiceBanco] != 0)
+			outP++;
+			
+		outV += bankMat[i][indiceBanco];
 
-		if(op == printTODOS)
-			printf("%d %d %d %d %d %d", inP, outP, outV, outVM, inV, inVM);
+		inV += bankMat[indiceBanco][i];
+
+	}
+
+	if(op == printTODOS)
+		printf("%d %d %d %d %d %d", inP, outP, outV, outVM, inV, inVM);
 
 	return outVM;
 }
