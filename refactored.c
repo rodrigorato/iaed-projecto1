@@ -46,10 +46,7 @@ int weakestLink();
 /* Programa - Funcoes */
 
 int main(){
-	/* 	Usado para invocar comandos	 *
-	 * 	Variaveis sao mais do que  	 *
-	 * necessarias por legibilidade. */
-
+	
 	int rating, valor, tipo; 
 	long ref1, ref2;
 	char nome[MAXNAME], command = getchar();
