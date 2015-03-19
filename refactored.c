@@ -251,10 +251,11 @@ int calcValues(int indiceBanco, int op){
 	int i, inP = 0, outP = 0, outV = 0, outVM = 0, inV = 0, inVM = 0;
 		/* OUTVM: usado pelo comando 'K' - valor total emprestado pelo banco a bancos 'maus' */
 		for(i=0; i<bankInd; i++){
-			if(bankList[i].rating == MAU)
+			if(bankList[i].rating == MAU){
 				outVM += bankMat[i][indiceBanco];
-
-			/* printTODOS - calculando ao mesmo tempo para diminuir complexidade */
+				inVM += bankMat[indiceBanco][i];
+			}
+			
 			if(bankMat[indiceBanco][i] != 0)
 				inP++;
 			
@@ -262,12 +263,10 @@ int calcValues(int indiceBanco, int op){
 				outP++;
 			
 			outV += bankMat[i][indiceBanco];
-			
+
 
 			inV += bankMat[indiceBanco][i];
 
-			if(bankList[i].rating == MAU)
-				inVM += bankMat[indiceBanco][i];
 		}
 
 		if(op == printTODOS)
