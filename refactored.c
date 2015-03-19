@@ -39,7 +39,6 @@ void killWorst();
 int indBankRef(long ref);
 void transfereDinheiro(long ref1, long ref2, int valor, int modo);
 int calcValues(int indiceBanco, int op);
-void histogramaParceiros();
 void lastStats();
 int weakestLink();
 
@@ -171,7 +170,9 @@ void listData(int tipo){
 			break;
 
 		case 2:
-			histogramaParceiros(); /* Escreve o histograma dos parceiros entre bancos */
+		for(i = 0; i < bankInd; i++)
+			if(listaHistograma[i] != 0)
+				printf("%d %d\n", i, listaHistograma[i]);
 			break;
 	}
 }
@@ -281,13 +282,6 @@ int calcValues(int indiceBanco, int op){
 			break;
 	}
 	return outVM;
-}
-
-void histogramaParceiros(){
-	int i;
-	for(i = 0; i < bankInd; i++)
-		if(listaHistograma[i] != 0)
-			printf("%d %d\n", i, listaHistograma[i]);
 }
 
 void lastStats(){
