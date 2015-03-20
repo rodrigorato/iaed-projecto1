@@ -248,10 +248,12 @@ int weakestLink(){
 
 	int tempDivida = 0, indFinal = -1, actDivida = -1, i;
 	for(i = 0; i < bankInd; i++){
+		if(bankList[i].rating == 1){
 		actDivida = calcValues(i, OUTVM);
 		if(bankList[i].rating == BOM && actDivida >= tempDivida && actDivida != 0){
 			tempDivida = actDivida;
 			indFinal = i;
+		}
 		}
 	}
 	return indFinal;
