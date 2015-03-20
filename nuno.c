@@ -1,7 +1,4 @@
-/* retirado do maybe.c */
-
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 #define MAXNAME 41 /* Definido pelo enunciado - nome maximo de um banco */
@@ -12,6 +9,7 @@
 #define DEVOLVE 1 /* Legibilidade de transferencias - comando 'p' */
 #define OUTVM 0 /* calcValues - legibilidade */
 #define printTODOS 1 /* calcValues - legibilidade */
+
 
 /* ESTRUTURA - Banco */
 typedef struct Banco{
@@ -27,12 +25,8 @@ int bankInd = 0; /* Indice de bancos - conta quantos ha  */
 bank bankList[MAXBANKS];
 int listaHistograma[MAXBANKS]; /* Vai sendo limpa a medida que sao adicionados bancos */
 
+
 /* Prototipos de funcoes */
-void addBank(char nome[], int rating, int ref);
-int killBank(int ref);
-void reviveBank(int ref);
-void emprestaDinheiro(int ref1, int ref2, int valor);
-void paybackDinheiro(int ref1, int ref2, int valor);
 void listData(int tipo);
 void killWorst();
 
@@ -46,34 +40,42 @@ int weakestLink();
 
 int main(){
 
-	int rating, valor, tipo, ref1, ref2;
-	char nome[MAXNAME], command;
-	scanf("%c",&command);
+	int valor, tipo, temp, ref1, ref2;
+	char command = getchar();
+
+
 	while(command != 'x'){
 		switch(command){
 			case 'a':
-				scanf("%s %d %d", nome, &rating, &ref1);
-				addBank(nome, rating, ref1);
+				scanf("%s%d%d", bankList[bankInd].nome, &bankList[bankInd].rating, &bankList[bankInd].ref);
+				bankList[bankInd].partners = 0;
+				listaHistograma[bankInd] = 0;
+				listaHistograma[0]++;
+				bankInd++;
 				break;
 
 			case 'k':
 				scanf("%d", &ref1);
-				killBank(ref1);
+				temp = indBankRef(ref1);
+				if(temp != -1)
+					bankList[temp].rating = MAU;
 				break;
 
 			case 'r':
 				scanf("%d", &ref1);
-				reviveBank(ref1);
+				temp = indBankRef(ref1);
+				if(temp != -1)
+					bankList[temp].rating = BOM;
 				break;
 
 			case 'e':
-				scanf("%d %d %d", &ref1, &ref2, &valor);
-				emprestaDinheiro(ref1, ref2, valor);
+				scanf("%d%d%d", &ref1, &ref2, &valor);
+				transfereDinheiro(ref1, ref2, valor, EMPRESTA);
 				break;
 
 			case 'p':
-				scanf("%d %d %d", &ref1, &ref2, &valor);
-				paybackDinheiro(ref1, ref2, valor);
+				scanf("%d%d%d", &ref1, &ref2, &valor);
+				transfereDinheiro(ref1, ref2, valor, DEVOLVE);
 				break;
 
 			case 'l':
@@ -88,8 +90,8 @@ int main(){
 			default:
 				printf("ERRO - Comando invalido!\n");
 		}
-		getchar(); /* '\n' por apanhar */
-		scanf("%c",&command);
+		getchar(); /* gets the remaining '\n' */
+		command = getchar();
 	}
 
 	lastStats();
@@ -97,50 +99,8 @@ int main(){
 }
 
 /* Funcoes do 'menu' */
-void addBank(char nome[], int rating, int ref){
-	/* Cria um novo banco, adiciona-o a lista		*
-	 * de bancos (com os dados que recebe)			*
-	 * e prepara as suas entradas na matriz.		*
-	 * Altera o indice de bancos (adjacInd global)  */
 
 
-	if(bankInd != MAXBANKS && ref > 0){
-		/* No caso contrario ja nao podemos guardar mais bancos */
-		strcpy(bankList[bankInd].nome, nome);
-		bankList[bankInd].rating = rating;
-		bankList[bankInd].ref = ref;
-		bankList[bankInd].partners = 0;
-		listaHistograma[bankInd] = 0;
-		listaHistograma[0]++;	
-
-		bankInd++;
-	}
-}
-
-int killBank(int ref){
-	/* Classifica como MAU o banco cuja referencia recebe */
-	int indice = indBankRef(ref);
-	if(indice != -1)
-		bankList[indice].rating = MAU;
-	return indice;
-}
-
-void reviveBank(int ref){
-	/* Classifica como BOM o banco cuja referencia recebe */
-	int indice = indBankRef(ref);
-	if(indice != -1)
-		bankList[indice].rating = BOM;
-}
-
-void emprestaDinheiro(int ref1, int ref2, int valor){
-	/* Empresta dinheiro de valor de ref1 para ref2 */
-	transfereDinheiro(ref1, ref2, valor, EMPRESTA);
-}
-
-void paybackDinheiro(int ref1, int ref2, int valor){
-	/* Devolve dinheiro de valor de ref1 para ref2 */
-	transfereDinheiro(ref1, ref2, valor, DEVOLVE);
-}
 
 void listData(int tipo){
 	/* Escreve a listagem de informacao conforme o enunciado */
@@ -169,12 +129,11 @@ void listData(int tipo){
 }
 
 void killWorst(){
-	int refWeakest, bankWorstInd;
-	refWeakest = weakestLink();
-	if(refWeakest != -1){
-		bankWorstInd = killBank(refWeakest);
-		printf("*%d %s %d ", refWeakest, bankList[bankWorstInd].nome, bankList[bankWorstInd].rating);
-		calcValues(bankWorstInd, printTODOS);
+	int indWeakest = weakestLink();
+	if(indWeakest != -1){
+		bankList[indWeakest].rating = MAU;
+		printf("*%d %s %d ", bankList[indWeakest].ref, bankList[indWeakest].nome, bankList[indWeakest].rating);
+		calcValues(indWeakest, printTODOS);
 		printf("\n");
 	}
 	lastStats();
@@ -270,6 +229,7 @@ int calcValues(int indiceBanco, int op){
 
 			printf("%d %d %d %d %d %d", inP, outP, outV, outVM, inV, inVM);
 			break;
+			
 	}
 	return outVM;
 }
@@ -286,13 +246,13 @@ int weakestLink(){
 	/* Devolve a referencia do pior banco *
 	 *          -1 caso nao o haja	      */
 
-	int tempDivida = 0, refFinal = -1, actDivida = -1, i;
+	int tempDivida = 0, indFinal = -1, actDivida = -1, i;
 	for(i = 0; i < bankInd; i++){
 		actDivida = calcValues(i, OUTVM);
 		if(bankList[i].rating == BOM && actDivida >= tempDivida && actDivida != 0){
 			tempDivida = actDivida;
-			refFinal = bankList[i].ref;
+			indFinal = i;
 		}
 	}
-	return refFinal;
+	return indFinal;
 }
