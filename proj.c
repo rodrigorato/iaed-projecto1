@@ -1,283 +1,306 @@
+/*		Turno 9 - Grupo 9	*
+ *							*
+ *	Alice Dourado  81205	*
+ *  Nuno Vieira	   81098	*
+ * 	Rodrigo Rato   81500	*
+ *							*/
+
 #include <stdio.h>
-#include <stdlib.h>
+#include <string.h>
 
-#define MAXNAME 41
+#define MAXNAME 41 /* Definido pelo enunciado - nome maximo de um banco */
+#define MAXBANKS 1000 /* Definido pelo enunciado - maximo de bancos = 10^3 */
+#define BOM 1 /* Para classificar bancos ditos bons */
+#define MAU 0 /* Para classificar bancos ditos maus */
+#define EMPRESTA 0 /* Legibilidade de transferencias - comando 'e' */
+#define DEVOLVE 1 /* Legibilidade de transferencias - comando 'p' */
+#define OUTVM 0 /* calcValues - legibilidade */
+#define printTODOS 1 /* calcValues - legibilidade */
 
-#define MAXBANKS 1000 /* 10^3 */
-
-
-/* ESTRUTURAS */
+/* ESTRUTURA - Banco */
 typedef struct Banco{
 	char nome[MAXNAME];
 	int ref;
-	int rating;/*1-bom, 0-mau, qualquer outro valor-invalido*/
+	int rating; /* 1 para um rating BOM e 0 para MAU - qualquer outro e invalido */
 	int partners;
 }bank;
 
-/* PROTOTIPOS */
-int addBank(bank bankList[], int adjacInd, int adjacMat[][MAXBANKS]);
-void killBank(bank bankList[]);
-void reviveBank(bank bankList[]);
-void loanMoney(bank bankList[], int adjacMat[][MAXBANKS]);
-void payback(bank bankList[], int adjacMat[][MAXBANKS]);
-void list(bank bankList[], int adjacMat[][MAXBANKS], int adjacInd);
-void killWorst(bank bankList[], int adjacMat[][MAXBANKS], int adjacInd);
-void goodStats(bank bankList[], int adjacInd);
+/* Dados dos bancos - a utilizar em todo o programa */
+int bankMat[MAXBANKS][MAXBANKS]; /* Matriz de adjacencias */
+int bankInd = 0; /* Indice de bancos - conta quantos ha */
+bank bankList[MAXBANKS]; /* Vector de bancos */
+int listaHistograma[MAXBANKS]; /* Vai sendo limpa a medida que sao adicionados bancos */
 
-void changeRating(bank list[], int referencia, int newRating);
-int weakestLink(bank bankList[], int adjacMat[][MAXBANKS], int adjacInd);
-int indBankRef(bank bankList[], int referencia);
-void transactions(bank bankList[], int way, int adjacMat[][MAXBANKS]);
-int ammountMoney(bank bankList[], int adjacMat[][MAXBANKS], int bankInd, int maxInd, int status);
-void histPartners(bank bankList[], int maxInd);
-void putValues(bank bankList[], int adjacMat[][MAXBANKS], int indBanco, int adjacInd);
+/* Prototipos de funcoes */
+void addBank(char nome[], int rating, int ref);
+int killBank(int ref);
+void reviveBank(int ref);
+void emprestaDinheiro(int ref1, int ref2, int valor);
+void paybackDinheiro(int ref1, int ref2, int valor);
+void listData(int tipo);
+void killWorst();
 
-void initBankList(bank bankList[]);
+int indBankRef(int ref);
+void transfereDinheiro(int ref1, int ref2, int valor, int modo);
+int calcValues(int indiceBanco, int op);
+void lastStats();
+int weakestLink();
 
+/* Programa - Funcoes */
+int main(){
 
+	int rating, valor, tipo, ref1, ref2;
+	char nome[MAXNAME], command = getchar();
 
-int main(){	
-	int adjacMat[MAXBANKS][MAXBANKS], adjacInd=0;
-	char c;
-	bank bankList[MAXBANKS];
-	initBankList(bankList);
-
-	while(1){
-		c = getchar();
-		switch(c){
+	while(command != 'x'){
+		switch(command){
 			case 'a':
-				adjacInd = addBank(bankList, adjacInd, adjacMat);
+				scanf("%s %d %d", nome, &rating, &ref1);
+				addBank(nome, rating, ref1);
 				break;
+
 			case 'k':
-				killBank(bankList);
+				scanf("%d", &ref1);
+				killBank(ref1);
 				break;
+
 			case 'r':
-				reviveBank(bankList);
+				scanf("%d", &ref1);
+				reviveBank(ref1);
 				break;
+
 			case 'e':
-				loanMoney(bankList, adjacMat);
+				scanf("%d %d %d", &ref1, &ref2, &valor);
+				emprestaDinheiro(ref1, ref2, valor);
 				break;
+
 			case 'p':
-				payback(bankList, adjacMat);
+				scanf("%d %d %d", &ref1, &ref2, &valor);
+				paybackDinheiro(ref1, ref2, valor);
 				break;
+
 			case 'l':
-				list(bankList, adjacMat, adjacInd);
+				scanf("%d", &tipo);
+				listData(tipo);
 				break;
+
 			case 'K':
-				killWorst(bankList, adjacMat, adjacInd);
+				killWorst();
 				break;
-			case 'x':
-				goodStats(bankList, adjacInd);
-				return EXIT_SUCCESS;
+
 			default:
-				printf("ERRO!\n");
+				printf("ERRO - Comando invalido!\n");
 		}
-		getchar();
+		getchar(); /* '\n' por apanhar */
+		command = getchar();
 	}
-	return EXIT_FAILURE;
+
+	lastStats();
+	return 0;
 }
 
 
+/* Funcoes do 'menu' */
+void addBank(char nome[], int rating, int ref){
+	/* Adiciona novo banco a lista de bancos, incrementa  	  *
+	 * o numero de bancos que temos e actualiza o histograma  *
+	 * de parceiros.										  */
 
-void changeRating(bank bankList[], int referencia, int newRating){
-	/* */
-	bankList[indBankRef(bankList, referencia)].rating = newRating;
-}
+	if(bankInd != MAXBANKS && ref > 0){
+		/* No caso contrario ja nao podemos guardar mais bancos */
+		strcpy(bankList[bankInd].nome, nome);
+		bankList[bankInd].rating = rating;
+		bankList[bankInd].ref = ref;
+		bankList[bankInd].partners = 0;
 
-int weakestLink(bank bankList[], int adjacMat[][MAXBANKS], int adjacInd){
-	/* -1 se nao houver */
-	int tempDivida = 0, refFinal = -1, i, actDivida = -1;
-	for(i=0; i<adjacInd; i++){
-		actDivida = ammountMoney(bankList, adjacMat, i, adjacInd, 3);
-		if(bankList[i].rating == 1 && actDivida >= tempDivida && actDivida!=0){
-			tempDivida = actDivida;
-			refFinal = bankList[i].ref;
-		}
+		listaHistograma[0]++;	
+
+		bankInd++;
 	}
-	return refFinal;
 }
 
-int indBankRef(bank bankList[], int referencia){
+int killBank(int ref){
+	/* Classifica como MAU o banco cuja referencia recebe */
+	int indice = indBankRef(ref);
+	bankList[indice].rating = MAU;
+	return indice;
+}
+
+void reviveBank(int ref){
+	/* Classifica como BOM o banco cuja referencia recebe */
+	int indice = indBankRef(ref);
+	bankList[indice].rating = BOM;
+}
+
+void emprestaDinheiro(int ref1, int ref2, int valor){
+	/* Empresta dinheiro de valor de ref1 para ref2 */
+	transfereDinheiro(ref1, ref2, valor, EMPRESTA);
+}
+
+void paybackDinheiro(int ref1, int ref2, int valor){
+	/* Devolve dinheiro de valor de ref1 para ref2 */
+	transfereDinheiro(ref1, ref2, valor, DEVOLVE);
+}
+
+void listData(int tipo){
+	/* Escreve a listagem de informacao conforme o enunciado */
+
 	int i;
-	for(i=0; i < MAXBANKS; i++){
-		if(bankList[i].ref == referencia)
-			return i;
-	}
-	return -1;
-}
-
-void transactions(bank bankList[], int way, int adjacMat[][MAXBANKS]){/*way=0 -> loan, way=1 ->payback*/
-	int i1, i2, ref1,ref2, money;
-	scanf(" %d %d %d", &ref1, &ref2, &money);
-	i1=indBankRef(bankList, ref1);
-	i2=indBankRef(bankList, ref2);
-	if(way==0){
-		if (adjacMat[i2][i1]==0 && adjacMat[i1][i2]==0){
-			bankList[i1].partners++;
-			bankList[i2].partners++;
-		}
-		adjacMat[i2][i1] += money;		
-	}
-	else{
-		adjacMat[i1][i2]-=money;
-		if (adjacMat[i2][i1]==0 && adjacMat[i1][i2]==0){
-			bankList[i1].partners--;
-			bankList[i2].partners--;
-		}	
-	}
-}
-
-int ammountMoney(bank bankList[], int adjacMat[][MAXBANKS], int bankInd, int maxInd, int status){
-	int result = 0, i = 0;
-	switch(status){
+	switch(tipo){
 		case 0:
-			/* inP: numero total de bancos parceiros a quem o banco tem divida */
-			for(i=0; i<maxInd; i++){
-				if(adjacMat[bankInd][i] != 0)
-					result++;
-			}
-			break;
-		case 1:
-			/* outP: numero total de bancos parceiros a quem o banco tem dinheiro emprestado */
-			for(i=0; i<maxInd; i++){
-				if(adjacMat[i][bankInd] != 0)
-					result++;
-			}
-			break;
-		case 2:
-			/* outV: valor total emprestado pelo banco a outros */
-			for(i=0; i<maxInd; i++)
-				result += adjacMat[i][bankInd];
-			break;
-		case 3:
-			/* outVM: usado pelo comando 'K' - valor total emprestado pelo banco a bancos 'maus' */
-			for(i=0; i<maxInd; i++){
-				if(bankList[i].rating == 0)
-					result += adjacMat[i][bankInd];
-			}
-			break;
-		case 4:
-			/* inV: valor total emprestado ao banco por outros bancos */
-			for(i=0; i<maxInd; i++)
-				result += adjacMat[bankInd][i];
-			break;
-		case 5:
-			/* inVM: valor total emprestado ao banco por bancos maus */
-			for(i=0; i<maxInd; i++)
-				if(bankList[i].rating == 0)
-					result += adjacMat[bankInd][i];
-			break;
-	}
-	return result;
-}
-
-void histPartners(bank bankList[], int maxInd){
-	int i, histList[MAXBANKS];
-	for(i=0; i<maxInd; i++)
-		histList[i] = 0;
-	for(i=0; i<maxInd; i++)
-		histList[bankList[i].partners]++;
-	for(i=0; i<maxInd; i++)
-		if(histList[i] != 0)
-			printf("%d %d\n", i, histList[i]);
-}
-
-void putValues(bank bankList[], int adjacMat[][MAXBANKS], int indBanco, int adjacInd){
-	int i;
-	for(i=0; i<5; i++)
-		printf("%d ", ammountMoney(bankList, adjacMat, indBanco, adjacInd, i));
-	/* Pode ser melhorado - para nao imprimir um espaco no ultimo printf() */
-	printf("%d", ammountMoney(bankList, adjacMat, indBanco, adjacInd, i));
-}
-
-void initBankList(bank bankList[]){
-	int i;
-	bank invalidBank;
-	invalidBank.ref = -1;
-	for(i=0; i<MAXBANKS; i++)
-		bankList[i] = invalidBank;
-}
-
-
-int addBank(bank bankList[], int adjacInd, int adjacMat[][MAXBANKS]){
-	/* */
-	int j;
-	bank newBank;
-	newBank.partners=0;
-
-	scanf(" %s %d %d", newBank.nome, &newBank.rating, &newBank.ref);
-	/*scanf(" %s", newBank.nome);
-	scanf(" %d %d", &newBank.rating, &newBank.ref);*/
-	bankList[adjacInd] = newBank;
-
-	for(j=0;j<=adjacInd;j++){
-		adjacMat[adjacInd][j]=0;
-		adjacMat[j][adjacInd]=0;
-	}
-
-	adjacInd++;
-
-	return adjacInd;
-}
-
-void killBank(bank bankList[]){
-	int ref;
-	scanf(" %d", &ref);
-	changeRating(bankList, ref, 0);
-}
-
-void reviveBank(bank bankList[]){
-	int ref;
-	scanf(" %d", &ref);
-	changeRating(bankList, ref, 1);
-}
-
-void loanMoney(bank bankList[], int adjacMat[][MAXBANKS]){
-	transactions(bankList,0, adjacMat);
-}
-
-void payback(bank bankList[], int adjacMat[][MAXBANKS]){
-	transactions(bankList,1, adjacMat);
-}
-
-void list(bank bankList[], int adjacMat[][MAXBANKS], int adjacInd){
-	int i, status;
-	scanf(" %d", &status);
-	switch(status){
-		case 0:
-			for(i=0; i < adjacInd; i++)
+			for(i = 0; i < bankInd; i++)
 				printf("%d %s %d\n", bankList[i].ref, bankList[i].nome, bankList[i].rating);
 			break;
+
 		case 1:
-			for(i=0; i < adjacInd; i++){
+			for(i = 0; i < bankInd; i++){
 				printf("%d %s %d ", bankList[i].ref, bankList[i].nome, bankList[i].rating);
-				putValues(bankList, adjacMat, i, adjacInd);
+				calcValues(i, printTODOS); /* Escreve estatisticas de dado banco */
 				printf("\n");
 			}
 			break;
+
 		case 2:
-			histPartners(bankList, adjacInd);
+			for(i = 0; i < bankInd; i++)
+				if(listaHistograma[i] != 0)
+					printf("%d %d\n", i, listaHistograma[i]);
 			break;
 	}
 }
 
-void killWorst(bank bankList[], int adjacMat[][MAXBANKS], int adjacInd){
+void killWorst(){
+	/* Despromove/mata o banco que verifique as condicoes	  *
+	 * ditas pelo enunciado. Caso nao exista nao faz nada.	  *
+	 * De qualquer modo, imprime a estatistica da totalidade  *
+	 * de bancos e quantos sao bons 						  */
+
 	int refWeakest, bankWorstInd;
-	refWeakest = weakestLink(bankList, adjacMat, adjacInd);
+	refWeakest = weakestLink();
 	if(refWeakest != -1){
-		changeRating(bankList, refWeakest, 0);
-		bankWorstInd = indBankRef(bankList, refWeakest);
-		printf("*%d %s %d ", bankList[bankWorstInd].ref, bankList[bankWorstInd].nome, bankList[bankWorstInd].rating);
-		putValues(bankList, adjacMat, bankWorstInd, adjacInd);
+		bankWorstInd = killBank(refWeakest);
+		printf("*%d %s %d ", refWeakest, bankList[bankWorstInd].nome, bankList[bankWorstInd].rating);
+		calcValues(bankWorstInd, printTODOS);
 		printf("\n");
 	}
-	goodStats(bankList, adjacInd);
+	lastStats();
 }
 
-void goodStats(bank bankList[], int adjacInd){
-	int i, bons=0;
-	for(i=0;i<adjacInd;i++)
-		if(bankList[i].rating==1)
+
+/* Funcoes 'auxiliares' */
+int indBankRef(int ref){
+	/* Devolve o indice de dado banco que recebe	*
+	 * a referencia por argumento. Caso nao exista 	*
+	 * devolve o inteiro '-1'.						*/
+
+	int i;
+	for(i = 0; i < bankInd; i++)
+		if(bankList[i].ref == ref)
+			return i;
+	return -1;
+}
+
+void transfereDinheiro(int ref1, int ref2, int valor, int modo){
+	/* Empresta ou devolve valor entre os bancos de ref1 e ref2: *
+	 * (ref1 <modo> ref2 o valor) em que o modo pode ser:		 *
+	 * <modo> ::= EMPRESTA ou DEVOLVE 							 *
+	 * Altera a matriz de adjacencias (bankMat global) 			 */	
+
+	 int ind1, ind2;
+	 ind1 = indBankRef(ref1);
+	 ind2 = indBankRef(ref2);
+
+	 if(valor > 0 && ind1 != -1 && ind2 != -1){
+	 	if(modo == EMPRESTA){
+	 		if(!bankMat[ind1][ind2] && !bankMat[ind2][ind1]){
+	 			listaHistograma[bankList[ind1].partners]--;
+	 			listaHistograma[bankList[ind2].partners]--;
+
+	 			bankList[ind1].partners++;
+	 			bankList[ind2].partners++;
+
+	 			listaHistograma[bankList[ind1].partners]++;
+	 			listaHistograma[bankList[ind2].partners]++;
+		 	}
+
+	 		bankMat[ind2][ind1] += valor;
+		 }
+		 else{
+	 		/* modo == DEVOLVE */
+	 		bankMat[ind1][ind2] -= valor;
+	 		if (!bankMat[ind2][ind1] && !bankMat[ind1][ind2]){
+	 			listaHistograma[bankList[ind1].partners]--;
+	 			listaHistograma[bankList[ind2].partners]--;
+
+	 			bankList[ind1].partners--;
+	 			bankList[ind2].partners--;
+
+	 			listaHistograma[bankList[ind1].partners]++;
+	 			listaHistograma[bankList[ind2].partners]++;
+			}
+		}
+	}
+}
+
+int calcValues(int indiceBanco, int op){
+	/* Calcula estatisticas de dado banco, explicado em comentarios posteriores */
+	int i, inP = 0, outP = 0, outV = 0, outVM = 0, inV = 0, inVM = 0;
+	switch(op){
+		case OUTVM:
+			/* OUTVM: usado pelo comando 'K' - valor total emprestado pelo banco a bancos 'maus' */
+			for(i=0; i < bankInd; i++){
+				if(bankList[i].rating == MAU)
+					outVM += bankMat[i][indiceBanco];
+			}
+			break;
+
+		case printTODOS:
+			/* printTODOS - calculando ao mesmo tempo para diminuir complexidade */
+			for(i = 0; i < bankInd; i++){
+				if(bankList[i].rating == MAU){
+					outVM += bankMat[i][indiceBanco];
+					inVM += bankMat[indiceBanco][i];
+				}
+
+				if(bankMat[indiceBanco][i] != 0)
+					inP++;
+				
+				if(bankMat[i][indiceBanco] != 0)
+					outP++;
+				
+				outV += bankMat[i][indiceBanco];
+
+				inV += bankMat[indiceBanco][i];
+
+			}
+
+			printf("%d %d %d %d %d %d", inP, outP, outV, outVM, inV, inVM);
+			break;
+	}
+	return outVM;
+}
+
+void lastStats(){
+	/* Imprime a estatistica da totalidade de bancos e quantos sao bons */
+	int i, bons = 0;
+	for(i = 0; i < bankInd; i++)
+		if(bankList[i].rating == BOM)
 			bons++;
-	printf("%d %d\n", adjacInd, bons);
+	printf("%d %d\n", bankInd, bons);
+}
+
+int weakestLink(){
+	/* Devolve a referencia do pior banco *
+	 *          -1 caso nao o haja	      */
+
+	int tempDivida = 0, refFinal = -1, actDivida = -1, i;
+	for(i = 0; i < bankInd; i++){
+		if(bankList[i].rating == BOM){
+			actDivida = calcValues(i, OUTVM);
+			if(actDivida >= tempDivida && actDivida){
+				tempDivida = actDivida;
+				refFinal = bankList[i].ref;
+			}
+		}
+	}
+	return refFinal;
 }
