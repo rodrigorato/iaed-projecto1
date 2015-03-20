@@ -1,5 +1,11 @@
+/*		Turno 9 - Grupo 9	*
+ *							*
+ *	Alice Dourado  81205	*
+ *  Nuno Vieira	   81098	*
+ * 	Rodrigo Rato   81500	*
+ *							*/
+
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 #define MAXNAME 41 /* Definido pelo enunciado - nome maximo de um banco */
@@ -21,8 +27,8 @@ typedef struct Banco{
 
 /* Dados dos bancos - a utilizar em todo o programa */
 int bankMat[MAXBANKS][MAXBANKS]; /* Matriz de adjacencias */
-int bankInd = 0; /* Indice de bancos - conta quantos ha  */
-bank bankList[MAXBANKS];
+int bankInd = 0; /* Indice de bancos - conta quantos ha */
+bank bankList[MAXBANKS]; /* Vector de bancos */
 int listaHistograma[MAXBANKS]; /* Vai sendo limpa a medida que sao adicionados bancos */
 
 /* Prototipos de funcoes */
@@ -41,7 +47,6 @@ void lastStats();
 int weakestLink();
 
 /* Programa - Funcoes */
-
 int main(){
 
 	int rating, valor, tipo, ref1, ref2;
@@ -94,13 +99,12 @@ int main(){
 	return 0;
 }
 
+
 /* Funcoes do 'menu' */
 void addBank(char nome[], int rating, int ref){
-	/* Cria um novo banco, adiciona-o a lista		*
-	 * de bancos (com os dados que recebe)			*
-	 * e prepara as suas entradas na matriz.		*
-	 * Altera o indice de bancos (adjacInd global)  */
-
+	/* Adiciona novo banco a lista de bancos, incrementa  	  *
+	 * o numero de bancos que temos e actualiza o histograma  *
+	 * de parceiros.										  */
 
 	if(bankInd != MAXBANKS && ref > 0){
 		/* No caso contrario ja nao podemos guardar mais bancos */
@@ -108,7 +112,7 @@ void addBank(char nome[], int rating, int ref){
 		bankList[bankInd].rating = rating;
 		bankList[bankInd].ref = ref;
 		bankList[bankInd].partners = 0;
-		listaHistograma[bankInd] = 0;
+
 		listaHistograma[0]++;	
 
 		bankInd++;
@@ -118,16 +122,14 @@ void addBank(char nome[], int rating, int ref){
 int killBank(int ref){
 	/* Classifica como MAU o banco cuja referencia recebe */
 	int indice = indBankRef(ref);
-	if(indice != -1)
-		bankList[indice].rating = MAU;
+	bankList[indice].rating = MAU;
 	return indice;
 }
 
 void reviveBank(int ref){
 	/* Classifica como BOM o banco cuja referencia recebe */
 	int indice = indBankRef(ref);
-	if(indice != -1)
-		bankList[indice].rating = BOM;
+	bankList[indice].rating = BOM;
 }
 
 void emprestaDinheiro(int ref1, int ref2, int valor){
@@ -167,6 +169,11 @@ void listData(int tipo){
 }
 
 void killWorst(){
+	/* Despromove/mata o banco que verifique as condicoes	  *
+	 * ditas pelo enunciado. Caso nao exista nao faz nada.	  *
+	 * De qualquer modo, imprime a estatistica da totalidade  *
+	 * de bancos e quantos sao bons 						  */
+
 	int refWeakest, bankWorstInd;
 	refWeakest = weakestLink();
 	if(refWeakest != -1){
@@ -204,7 +211,7 @@ void transfereDinheiro(int ref1, int ref2, int valor, int modo){
 
 	 if(valor > 0 && ind1 != -1 && ind2 != -1){
 	 	if(modo == EMPRESTA){
-	 		if(bankMat[ind1][ind2] == 0 && bankMat[ind2][ind1] == 0){
+	 		if(!bankMat[ind1][ind2] && !bankMat[ind2][ind1]){
 	 			listaHistograma[bankList[ind1].partners]--;
 	 			listaHistograma[bankList[ind2].partners]--;
 
@@ -220,7 +227,7 @@ void transfereDinheiro(int ref1, int ref2, int valor, int modo){
 		 else{
 	 		/* modo == DEVOLVE */
 	 		bankMat[ind1][ind2] -= valor;
-	 		if (bankMat[ind2][ind1] == 0 && bankMat[ind1][ind2] == 0){
+	 		if (!bankMat[ind2][ind1] && !bankMat[ind1][ind2]){
 	 			listaHistograma[bankList[ind1].partners]--;
 	 			listaHistograma[bankList[ind2].partners]--;
 
@@ -240,7 +247,7 @@ int calcValues(int indiceBanco, int op){
 	switch(op){
 		case OUTVM:
 			/* OUTVM: usado pelo comando 'K' - valor total emprestado pelo banco a bancos 'maus' */
-			for(i=0; i<bankInd; i++){
+			for(i=0; i < bankInd; i++){
 				if(bankList[i].rating == MAU)
 					outVM += bankMat[i][indiceBanco];
 			}
@@ -249,6 +256,11 @@ int calcValues(int indiceBanco, int op){
 		case printTODOS:
 			/* printTODOS - calculando ao mesmo tempo para diminuir complexidade */
 			for(i = 0; i < bankInd; i++){
+				if(bankList[i].rating == MAU){
+					outVM += bankMat[i][indiceBanco];
+					inVM += bankMat[indiceBanco][i];
+				}
+
 				if(bankMat[indiceBanco][i] != 0)
 					inP++;
 				
@@ -257,13 +269,8 @@ int calcValues(int indiceBanco, int op){
 				
 				outV += bankMat[i][indiceBanco];
 
-				if(bankList[i].rating == MAU)
-					outVM += bankMat[i][indiceBanco];
-
 				inV += bankMat[indiceBanco][i];
 
-				if(bankList[i].rating == MAU)
-					inVM += bankMat[indiceBanco][i];
 			}
 
 			printf("%d %d %d %d %d %d", inP, outP, outV, outVM, inV, inVM);
@@ -273,6 +280,7 @@ int calcValues(int indiceBanco, int op){
 }
 
 void lastStats(){
+	/* Imprime a estatistica da totalidade de bancos e quantos sao bons */
 	int i, bons = 0;
 	for(i = 0; i < bankInd; i++)
 		if(bankList[i].rating == BOM)
@@ -286,10 +294,12 @@ int weakestLink(){
 
 	int tempDivida = 0, refFinal = -1, actDivida = -1, i;
 	for(i = 0; i < bankInd; i++){
-		actDivida = calcValues(i, OUTVM);
-		if(bankList[i].rating == BOM && actDivida >= tempDivida && actDivida != 0){
-			tempDivida = actDivida;
-			refFinal = bankList[i].ref;
+		if(bankList[i].rating == BOM){
+			actDivida = calcValues(i, OUTVM);
+			if(actDivida >= tempDivida && actDivida){
+				tempDivida = actDivida;
+				refFinal = bankList[i].ref;
+			}
 		}
 	}
 	return refFinal;
