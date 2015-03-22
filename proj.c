@@ -1,4 +1,4 @@
-/*		Turno 9 - Grupo 9	*
+/*	 Turno 9 - Grupo 9   	*
  *							*
  *	Alice Dourado  81205	*
  *  Nuno Vieira	   81098	*
@@ -15,7 +15,7 @@
 #define EMPRESTA 0 /* Legibilidade de transferencias - comando 'e' */
 #define DEVOLVE 1 /* Legibilidade de transferencias - comando 'p' */
 #define OUTVM 0 /* calcValues - legibilidade */
-#define printTODOS 1 /* calcValues - legibilidade */
+#define PRINTALL 1 /* calcValues - legibilidade */
 
 /* ESTRUTURA - Banco */
 typedef struct Banco{
@@ -26,12 +26,13 @@ typedef struct Banco{
 }bank;
 
 /* Dados dos bancos - a utilizar em todo o programa */
-int bankMat[MAXBANKS][MAXBANKS]; /* Matriz de adjacencias */
+int bankMat[MAXBANKS][MAXBANKS]; /* Matriz de adjacencias em bankMat[A][B] temos o que A emprestou a B */
 int bankInd = 0; /* Indice de bancos - conta quantos ha */
 bank bankList[MAXBANKS]; /* Vector de bancos */
-int listaHistograma[MAXBANKS]; /* Vai sendo limpa a medida que sao adicionados bancos */
+int listaHistograma[MAXBANKS]; /* Mantem dados sobre quantos bancos tem quantos parceiros */
 
 /* Prototipos de funcoes */
+/* Para a respetiva documentacao consultar a definicao da funcao */
 void addBank(char nome[], int rating, int ref);
 int killBank(int ref);
 void reviveBank(int ref);
@@ -46,9 +47,9 @@ int calcValues(int indiceBanco, int op);
 void lastStats();
 int weakestLink();
 
+
 /* Programa - Funcoes */
 int main(){
-
 	int rating, valor, tipo, ref1, ref2;
 	char nome[MAXNAME], command = getchar();
 
@@ -100,7 +101,7 @@ int main(){
 }
 
 
-/* Funcoes do 'menu' */
+/* Funcoes chamadas directamente pela main */
 void addBank(char nome[], int rating, int ref){
 	/* Adiciona novo banco a lista de bancos, incrementa  	  *
 	 * o numero de bancos que temos e actualiza o histograma  *
@@ -133,18 +134,17 @@ void reviveBank(int ref){
 }
 
 void emprestaDinheiro(int ref1, int ref2, int valor){
-	/* Empresta dinheiro de valor de ref1 para ref2 */
+	/* Empresta a quantidade valor de dinheiro do banco ref1 para ref2 */
 	transfereDinheiro(ref1, ref2, valor, EMPRESTA);
 }
 
 void paybackDinheiro(int ref1, int ref2, int valor){
-	/* Devolve dinheiro de valor de ref1 para ref2 */
+	/* Devolve a quantidade valor de dinheiro do banco ref1 para ref2 */
 	transfereDinheiro(ref1, ref2, valor, DEVOLVE);
 }
 
 void listData(int tipo){
 	/* Escreve a listagem de informacao conforme o enunciado */
-
 	int i;
 	switch(tipo){
 		case 0:
@@ -155,7 +155,7 @@ void listData(int tipo){
 		case 1:
 			for(i = 0; i < bankInd; i++){
 				printf("%d %s %d ", bankList[i].ref, bankList[i].nome, bankList[i].rating);
-				calcValues(i, printTODOS); /* Escreve estatisticas de dado banco */
+				calcValues(i, PRINTALL); /* Escreve estatisticas de dado banco */
 				printf("\n");
 			}
 			break;
@@ -179,18 +179,18 @@ void killWorst(){
 	if(refWeakest != -1){
 		bankWorstInd = killBank(refWeakest);
 		printf("*%d %s %d ", refWeakest, bankList[bankWorstInd].nome, bankList[bankWorstInd].rating);
-		calcValues(bankWorstInd, printTODOS);
+		calcValues(bankWorstInd, PRINTALL);
 		printf("\n");
 	}
 	lastStats();
 }
 
 
-/* Funcoes 'auxiliares' */
+/* Funcoes auxiliares */
 int indBankRef(int ref){
 	/* Devolve o indice de dado banco que recebe	*
 	 * a referencia por argumento. Caso nao exista 	*
-	 * devolve o inteiro '-1'.						*/
+	 * devolve -1.								*/
 
 	int i;
 	for(i = 0; i < bankInd; i++)
@@ -212,6 +212,7 @@ void transfereDinheiro(int ref1, int ref2, int valor, int modo){
 	 if(valor > 0 && ind1 != -1 && ind2 != -1){
 	 	if(modo == EMPRESTA){
 	 		if(!bankMat[ind1][ind2] && !bankMat[ind2][ind1]){
+				/* Actualiza o numero de parceiros de cada banco caso nao o sejam */
 	 			listaHistograma[bankList[ind1].partners]--;
 	 			listaHistograma[bankList[ind2].partners]--;
 
@@ -227,6 +228,7 @@ void transfereDinheiro(int ref1, int ref2, int valor, int modo){
 		 else{
 	 		/* modo == DEVOLVE */
 	 		bankMat[ind1][ind2] -= valor;
+
 	 		if (!bankMat[ind2][ind1] && !bankMat[ind1][ind2]){
 	 			listaHistograma[bankList[ind1].partners]--;
 	 			listaHistograma[bankList[ind2].partners]--;
@@ -242,7 +244,10 @@ void transfereDinheiro(int ref1, int ref2, int valor, int modo){
 }
 
 int calcValues(int indiceBanco, int op){
-	/* Calcula estatisticas de dado banco, explicado em comentarios posteriores */
+	/* Se op == OUTVM calcula o valor de OutVM do banco			   *
+	 * Se op == PRINTALL calcula todas as estatisticas do banco  *
+	 * Em qualquer dos casos devolve o valor do OutVM do banco	   */
+
 	int i, inP = 0, outP = 0, outV = 0, outVM = 0, inV = 0, inVM = 0;
 	switch(op){
 		case OUTVM:
@@ -253,8 +258,8 @@ int calcValues(int indiceBanco, int op){
 			}
 			break;
 
-		case printTODOS:
-			/* printTODOS - calculando ao mesmo tempo para diminuir complexidade */
+		case PRINTALL:
+			/* PRINTALL - calculando ao mesmo tempo para diminuir complexidade */
 			for(i = 0; i < bankInd; i++){
 				if(bankList[i].rating == MAU){
 					outVM += bankMat[i][indiceBanco];
@@ -280,7 +285,7 @@ int calcValues(int indiceBanco, int op){
 }
 
 void lastStats(){
-	/* Imprime a estatistica da totalidade de bancos e quantos sao bons */
+	/* Imprime o numero de bancos registados no sistema e quantos sao bancos bons */
 	int i, bons = 0;
 	for(i = 0; i < bankInd; i++)
 		if(bankList[i].rating == BOM)
@@ -289,8 +294,8 @@ void lastStats(){
 }
 
 int weakestLink(){
-	/* Devolve a referencia do pior banco *
-	 *          -1 caso nao o haja	      */
+	/* Devolve a referencia do pior banco			   *
+	 * devolve -1 caso nao haja banco nessas condicoes */
 
 	int tempDivida = 0, refFinal = -1, actDivida = -1, i;
 	for(i = 0; i < bankInd; i++){
